@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #05070d;
+  color: #e7ebf1;
+}
+
+/* Continuous dark background: layered radial glows, no hard section breaks */
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(60rem 30rem at 15% 0%, rgba(47, 139, 255, 0.12), transparent 60%),
+    radial-gradient(50rem 26rem at 85% 18%, rgba(47, 139, 255, 0.08), transparent 55%),
+    radial-gradient(60rem 40rem at 50% 55%, rgba(20, 40, 80, 0.18), transparent 60%),
+    radial-gradient(50rem 30rem at 20% 90%, rgba(47, 139, 255, 0.07), transparent 60%),
+    linear-gradient(180deg, #05070d 0%, #060911 30%, #070b15 60%, #05070d 100%);
+  background-attachment: fixed;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-strong {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #5eb3ff 0%, #9fd0ff 40%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+::selection {
+  background: rgba(47, 139, 255, 0.35);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #05070d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1a2436;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #24314a;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Command Center AI",
+  "short_name": "Command Center AI",
+  "description": "We Build AI Command Centers for Businesses.",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "theme_color": "#070b14",
+  "background_color": "#05070d",
+  "display": "standalone",
+  "start_url": "/"
+}
