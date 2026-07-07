@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         await resend.emails.send({
           from: "Command Center AI Website <no-reply@commandcenterai.net>",
           to: NOTIFY_EMAIL,
-          replyTo: email,
+          reply_to: email,
           subject: `New Free AI Consultation request — ${name}`,
           text: [
             `Name: ${name}`,
