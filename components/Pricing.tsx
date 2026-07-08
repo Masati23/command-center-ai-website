@@ -14,7 +14,7 @@ const packages: Package[] = [
   {
     name: "Starter Package",
     tag: "AI Website Chatbot",
-    price: "Starting at $449",
+    price: "Starting at $599",
     description: "Perfect for businesses wanting an AI assistant on their website.",
     features: [
       "24/7 AI website chatbot",
@@ -26,7 +26,7 @@ const packages: Package[] = [
   {
     name: "Growth Package",
     tag: "Lead Generation & Follow-Ups",
-    price: "Starting at $899",
+    price: "Starting at $1,499",
     description: "Perfect for businesses wanting more qualified leads.",
     features: [
       "Everything in Starter",
@@ -39,7 +39,7 @@ const packages: Package[] = [
   {
     name: "Business Package",
     tag: "Complete AI Command Center",
-    price: "Starting at $1,999",
+    price: "Starting at $2,999",
     description: "Perfect for businesses ready to automate multiple business processes.",
     features: [
       "Everything in Growth",
@@ -53,12 +53,12 @@ const packages: Package[] = [
 const supportTiers = [
   {
     name: "Basic",
-    price: "$59",
+    price: "$99",
     features: ["System monitoring", "Monthly health check", "Minor content updates", "Email support"],
   },
   {
     name: "Growth",
-    price: "$129",
+    price: "$149",
     features: ["Everything in Basic", "Priority response times", "Monthly performance report", "Workflow adjustments"],
     highlighted: true,
   },
