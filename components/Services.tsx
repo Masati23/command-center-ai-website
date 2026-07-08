@@ -34,7 +34,7 @@ const services: Service[] = [
   {
     tag: "Service 01",
     name: "AI Website Chatbot",
-    price: "Starting at $449",
+    price: "Starting at $599",
     description: "A tireless front-line assistant that greets, answers, and captures every visitor.",
     features: [
       "Answers customer questions 24/7",
@@ -49,7 +49,7 @@ const services: Service[] = [
   {
     tag: "Service 02",
     name: "AI Appointment Booking Bot",
-    price: "Starting at $549",
+    price: "Starting at $899",
     description: "Let customers book themselves in — day or night — with zero back-and-forth.",
     features: [
       "Appointment scheduling",
@@ -63,7 +63,7 @@ const services: Service[] = [
   {
     tag: "Service 03",
     name: "AI Lead Generation System",
-    price: "Starting at $899",
+    price: "Starting at $1,499",
     description: "Find, qualify, and nurture new business automatically, every single day.",
     features: [
       "Business lead discovery",
@@ -77,7 +77,7 @@ const services: Service[] = [
   {
     tag: "Service 04",
     name: "AI Business Command Center",
-    price: "Starting at $1,999",
+    price: "Starting at $2,999",
     description: "One executive dashboard that runs your entire operation on autopilot.",
     features: [
       "Executive dashboard",
