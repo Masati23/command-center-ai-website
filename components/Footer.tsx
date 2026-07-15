@@ -38,7 +38,7 @@ export default function Footer() {
                 <a href="tel:+18327441631" className="hover:text-white">832-744-1631</a>
               </li>
               <li>
-                <a href="mailto:alfred@commandcenterai.net" className="hover:text-white">
+                <a href="mailto:commandcenterai.contact@gmail.com" className="hover:text-white">
                   alfred@commandcenterai.net
                 </a>
               </li>
