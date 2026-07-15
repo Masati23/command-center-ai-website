@@ -39,7 +39,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="mailto:commandcenterai.contact@gmail.com" className="hover:text-white">
-                  alfred@commandcenterai.net
+                  commandcenterai.contact@gmail.com
                 </a>
               </li>
               <li>Houston, Texas</li>
