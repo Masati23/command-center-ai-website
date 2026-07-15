@@ -66,11 +66,11 @@ export default function Contact() {
                 </svg>
                 832-744-1631
               </a>
-              <a href="mailto:alfred@commandcenterai.net" className="flex items-center gap-3 text-sm text-silver-300 hover:text-white">
+              <a href="mailto:commandcenterai.contact@gmail.com" className="flex items-center gap-3 text-sm text-silver-300 hover:text-white">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
                   <path d="M4 4h16v16H4V4Zm0 0 8 9 8-9" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                alfred@commandcenterai.net
+                commandcenterai.contact@gmail.com
               </a>
               <div className="flex items-center gap-3 text-sm text-silver-300">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
