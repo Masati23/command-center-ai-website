@@ -307,7 +307,18 @@ export default function Services() {
   const { t } = useLanguage();
   const [buyState, setBuyState] = useState<Record<string, "idle" | "loading" | "error">>({});
 
+  // Fire-and-forget — a tracking failure should never affect the actual
+  // button action, so this is deliberately not awaited or error-surfaced.
+  function track(type: "buy_click" | "consult_click", productSlug: string) {
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, productSlug }),
+    }).catch(() => {});
+  }
+
   async function handleBuy(productSlug: string) {
+    track("buy_click", productSlug);
     setBuyState((s) => ({ ...s, [productSlug]: "loading" }));
     try {
       const res = await fetch("/api/checkout/direct-purchase", {
@@ -379,7 +390,11 @@ export default function Services() {
                       : t("services.buyStarterPackage")}
                   </Button>
                 )}
-                <Button href="#contact" variant="secondary">
+                <Button
+                  href="#contact"
+                  variant="secondary"
+                  onClick={() => track("consult_click", service.productSlug)}
+                >
                   {t("services.freeConsultationQuote")}
                 </Button>
               </div>

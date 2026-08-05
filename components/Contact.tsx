@@ -9,7 +9,7 @@ type Status = "idle" | "loading" | "success" | "error";
 export default function Contact() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,6 +24,7 @@ export default function Contact() {
       company: (form.elements.namedItem("company") as HTMLInputElement).value,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
       website: (form.elements.namedItem("website") as HTMLInputElement).value,
+      language,
     };
 
     try {

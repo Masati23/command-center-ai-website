@@ -11,6 +11,7 @@ interface ContactPayload {
   phone?: string;
   company?: string;
   message?: string;
+  language?: string;
   // Honeypot — a field real visitors never see or fill in (hidden via CSS
   // in the form, not `type="hidden"`, since bots specifically skip those).
   // Any value here means it's a bot; reject silently with a 200 so the bot
@@ -27,7 +28,11 @@ const NOTIFY_EMAIL = process.env.CONTACT_NOTIFY_EMAIL || "commandcenterai.contac
 export async function POST(req: NextRequest) {
   try {
     const body: ContactPayload = await req.json();
-    const { name, email, phone, company, message, website } = body;
+    const { name, email, phone, company, message, website, language } = body;
+    // Best-effort, non-invasive referral signal — just where the browser
+    // says it came from on this same request, not a tracking cookie or
+    // cross-session profile.
+    const referralSource = req.headers.get("referer") ?? null;
 
     if (website) {
       // Honeypot tripped — pretend success, do nothing.
@@ -76,7 +81,15 @@ export async function POST(req: NextRequest) {
     // via email/CRM webhook either way.
     try {
       await db.contactSubmission.create({
-        data: { name, email, phone: phone || null, company: company || null, message },
+        data: {
+          name,
+          email,
+          phone: phone || null,
+          company: company || null,
+          message,
+          language: language === "es" ? "es" : "en",
+          referralSource,
+        },
       });
     } catch (dbErr) {
       console.error("Failed to persist contact submission:", dbErr);
