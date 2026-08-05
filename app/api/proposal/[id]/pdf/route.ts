@@ -39,7 +39,13 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     data: { type: "proposal_pdf_downloaded", refId: proposal.id },
   });
 
-  return new NextResponse(buffer, {
+  // NextResponse's body type wants an exact ArrayBuffer, not Node's Buffer
+  // (which is a view over a possibly-larger, possibly-pooled ArrayBuffer).
+  // Slicing to the buffer's own byteOffset/byteLength gives back precisely
+  // the bytes this buffer represents, nothing more.
+  const pdfBody = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer;
+
+  return new NextResponse(pdfBody, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="command-center-ai-proposal-${proposal.id}.pdf"`,
