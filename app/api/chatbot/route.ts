@@ -83,7 +83,12 @@ export async function POST(req: NextRequest) {
     });
 
     await db.eventLog.create({
-      data: { type: "chatbot_message", refId: conversation.id, metadata: { flaggedUnanswered } },
+      data: {
+        type: "chatbot_message",
+        refId: conversation.id,
+        email: conversation.customerEmail ?? undefined,
+        metadata: { flaggedUnanswered },
+      },
     });
 
     return NextResponse.json({ reply: replyText, conversationId: conversation.id });

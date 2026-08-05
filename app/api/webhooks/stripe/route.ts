@@ -120,7 +120,12 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
       data: ONBOARDING_TASKS.map((t) => ({ orderId: order.id, taskName: t.taskName, assetType: t.assetType })),
     }),
     db.eventLog.create({
-      data: { type: "payment_succeeded", refId: order.id, metadata: { stripeEventId: event.id, newStatus } },
+      data: {
+        type: "payment_succeeded",
+        refId: order.id,
+        email: order.customer.email,
+        metadata: { stripeEventId: event.id, newStatus },
+      },
     }),
   ]);
 
@@ -204,6 +209,7 @@ async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Strip
     data: {
       type: "payment_succeeded",
       refId: order.id,
+      email: customer.email,
       metadata: { stripeEventId: event.id, source: "direct_purchase", productSlug: product.slug },
     },
   });
@@ -245,7 +251,12 @@ async function handleInvoicePaymentSucceeded(event: Stripe.Event) {
   });
 
   await db.eventLog.create({
-    data: { type: "payment_succeeded", refId: order.id, metadata: { stripeEventId: event.id, recurring: true } },
+    data: {
+      type: "payment_succeeded",
+      refId: order.id,
+      email: order.customer.email,
+      metadata: { stripeEventId: event.id, recurring: true },
+    },
   });
 
   await sendOrderConfirmationEmails({

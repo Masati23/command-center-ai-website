@@ -63,7 +63,7 @@ export default async function AdminContactsPage({
             </button>
           </form>
           <a
-            href="/api/admin/export/contacts"
+            href={`/api/admin/export/contacts${q || status ? `?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}) }).toString()}` : ""}`}
             className="whitespace-nowrap rounded-lg border border-white/10 px-3 py-2 text-sm text-silver-300 hover:text-white"
           >
             Export CSV

@@ -59,7 +59,7 @@ export default async function AdminOrdersPage({
             />
           </form>
           <a
-            href="/api/admin/export/orders"
+            href={`/api/admin/export/orders${q ? `?q=${encodeURIComponent(q)}` : ""}`}
             className="whitespace-nowrap rounded-lg border border-white/10 px-3 py-2 text-sm text-silver-300 hover:text-white"
           >
             Export CSV

@@ -1,16 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { toCsv, csvResponse } from "@/lib/csv";
 import { formatCents } from "@/lib/pricing";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q")?.trim();
+
   const orders = await db.order.findMany({
+    where: q
+      ? {
+          customer: {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { email: { contains: q, mode: "insensitive" } },
+              { businessName: { contains: q, mode: "insensitive" } },
+            ],
+          },
+        }
+      : {},
     include: { customer: true },
     orderBy: { createdAt: "desc" },
   });

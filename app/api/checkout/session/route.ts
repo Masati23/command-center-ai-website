@@ -119,7 +119,12 @@ export async function POST(req: NextRequest) {
     });
 
     await db.eventLog.create({
-      data: { type: "checkout_started", refId: order.id, metadata: { paymentPlanType, amountDue } },
+      data: {
+        type: "checkout_started",
+        refId: order.id,
+        email: proposal.customer.email,
+        metadata: { paymentPlanType, amountDue },
+      },
     });
 
     return NextResponse.json({ url: session.url });

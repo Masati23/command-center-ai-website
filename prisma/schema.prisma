@@ -34,12 +34,17 @@ model Customer {
 }
 
 model AdminUser {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String    @unique
   passwordHash String
-  role         String   @default("admin") // admin | super_admin
-  createdAt    DateTime @default(now())
+  role         String    @default("admin") // admin | super_admin
+  createdAt    DateTime  @default(now())
+  // Updated when the owner loads the Executive Dashboard (Overview) —
+  // powers the "new since you last looked" notification badges. Not a
+  // general last-active timestamp; deliberately only touched from that
+  // one page so badges don't clear themselves before they're seen.
+  lastSeenAt   DateTime?
 
   @@map("admin_users")
 }
@@ -438,15 +443,32 @@ model ChatMessage {
 // payment, and onboarding events.
 // ---------------------------------------------------------------------------
 
+// The cross-cutting activity stream: every checkout, payment, chat message,
+// contact submission, and status change writes one of these. `email` is the
+// correlation key that makes the Customer Timeline possible — merge every
+// EventLog row for a given email with that lead's ContactSubmission,
+// ChatConversations, and Orders, sort by createdAt, and you have the full
+// history, no separate timeline table needed.
+//
+// This is also the intended foundation for future AI features (lead
+// scoring, follow-up recommendations, conversation summaries, revenue
+// forecasting) — they'd all read this same event stream rather than
+// needing their own tracking pipeline. Adding a new event `type` never
+// requires a migration (it's just a string + a Json bag), and adding
+// somewhere to store an AI-generated score or summary later is a small
+// additive column (e.g. ContactSubmission.aiScore), not a redesign.
 model EventLog {
   id        String   @id @default(cuid())
   type      String // "assessment_started" | "assessment_submitted" | "proposal_created" |
-  // "checkout_started" | "payment_succeeded" | "onboarding_task_completed" | ...
-  refId     String? // id of the related record (assessment/order/etc.)
+  // "checkout_started" | "payment_succeeded" | "contact_submitted" |
+  // "status_changed" | "chatbot_message" | "onboarding_task_completed" | ...
+  refId     String? // id of the related record (assessment/order/contact/etc.)
+  email     String? // correlation key for the Customer Timeline — set whenever the actor's email is known at write time
   metadata  Json?
   createdAt DateTime @default(now())
 
   @@map("event_log")
   @@index([type])
+  @@index([email])
   @@index([refId])
 }

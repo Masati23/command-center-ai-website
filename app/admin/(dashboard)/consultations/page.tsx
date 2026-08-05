@@ -45,29 +45,37 @@ export default async function AdminConsultationsPage({
             Same submissions as Contact Submissions, viewed with the consultation-specific details up front.
           </p>
         </div>
-        <form action="/admin/consultations" className="flex flex-wrap gap-2">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Search name, email, service…"
-            className="w-56 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none focus:border-electric-500/50"
-          />
-          <select
-            name="status"
-            defaultValue={status ?? ""}
-            className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none focus:border-electric-500/50"
+        <div className="flex flex-wrap gap-2">
+          <form action="/admin/consultations" className="flex flex-wrap gap-2">
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Search name, email, service…"
+              className="w-56 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none focus:border-electric-500/50"
+            />
+            <select
+              name="status"
+              defaultValue={status ?? ""}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none focus:border-electric-500/50"
+            >
+              <option value="" className="bg-navy-900">All statuses</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s} className="bg-navy-900 capitalize">
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="rounded-lg border border-white/10 px-3 py-2 text-sm text-silver-300 hover:text-white">
+              Filter
+            </button>
+          </form>
+          <a
+            href={`/api/admin/export/contacts${q || status ? `?${new URLSearchParams({ ...(q ? { q } : {}), ...(status ? { status } : {}) }).toString()}` : ""}`}
+            className="whitespace-nowrap rounded-lg border border-white/10 px-3 py-2 text-sm text-silver-300 hover:text-white"
           >
-            <option value="" className="bg-navy-900">All statuses</option>
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s} className="bg-navy-900 capitalize">
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="rounded-lg border border-white/10 px-3 py-2 text-sm text-silver-300 hover:text-white">
-            Filter
-          </button>
-        </form>
+            Export CSV
+          </a>
+        </div>
       </div>
 
       <div className="mt-6 space-y-3">

@@ -41,5 +41,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     data: parsed.data,
   });
 
+  // Powers the Customer Timeline's "Status changes" / "Follow-up notes"
+  // entries and the Executive Dashboard's Recent Activity feed — only
+  // written for the field(s) that actually changed, not on every save.
+  const events: { type: string; metadata: Record<string, unknown> }[] = [];
+  if (parsed.data.status && parsed.data.status !== existing.status) {
+    events.push({ type: "status_changed", metadata: { from: existing.status, to: parsed.data.status } });
+  }
+  if (parsed.data.ownerNotes !== undefined && parsed.data.ownerNotes !== existing.ownerNotes) {
+    events.push({ type: "note_updated", metadata: {} });
+  }
+  if (events.length > 0) {
+    await db.eventLog.createMany({
+      data: events.map((e) => ({ type: e.type, refId: existing.id, email: existing.email, metadata: e.metadata })),
+    });
+  }
+
   return NextResponse.json({ ok: true, submission: updated });
 }

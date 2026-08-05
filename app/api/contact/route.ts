@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     // Non-fatal if the database isn't configured yet — the form still works
     // via email/CRM webhook either way.
     try {
-      await db.contactSubmission.create({
+      const created = await db.contactSubmission.create({
         data: {
           name,
           email,
@@ -90,6 +90,12 @@ export async function POST(req: NextRequest) {
           language: language === "es" ? "es" : "en",
           referralSource,
         },
+      });
+      // Feeds the Executive Dashboard's Recent Activity feed, notification
+      // badges, and — via the shared `email` correlation key — the
+      // Customer Timeline on this lead's detail page.
+      await db.eventLog.create({
+        data: { type: "contact_submitted", refId: created.id, email, metadata: { name, company: company || null } },
       });
     } catch (dbErr) {
       console.error("Failed to persist contact submission:", dbErr);
