@@ -81,7 +81,12 @@ export async function POST(req: NextRequest) {
                   currency: "usd",
                   recurring: { interval: "month" },
                   unit_amount: amountDue,
-                  product_data: { name: `${productName} — Monthly Plan` },
+                  // txcd_10000000 = Stripe's default tax code for
+                  // not-yet-classified digital services, required now that
+                  // Managed Payments is enabled. Revisit via the Stripe
+                  // Dashboard's Product Tax Code selector before live
+                  // payments (see same note in direct-purchase/route.ts).
+                  product_data: { name: `${productName} — Monthly Plan`, tax_code: "txcd_10000000" },
                 },
                 quantity: 1,
               },
@@ -98,7 +103,7 @@ export async function POST(req: NextRequest) {
                 price_data: {
                   currency: "usd",
                   unit_amount: amountDue,
-                  product_data: { name: productName },
+                  product_data: { name: productName, tax_code: "txcd_10000000" },
                 },
                 quantity: 1,
               },

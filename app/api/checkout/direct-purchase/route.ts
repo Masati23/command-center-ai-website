@@ -62,6 +62,16 @@ export async function POST(req: NextRequest) {
             product_data: {
               name: `${product.name} — Starter Package`,
               description: product.description,
+              // Required now that Managed Payments is enabled on this
+              // account — Stripe rejects line items with no product tax
+              // code. txcd_10000000 (General - Electronically Supplied
+              // Services) is Stripe's own documented default for
+              // not-yet-classified digital services. Stripe's docs note
+              // this default doesn't capture state-specific US nuances as
+              // precisely as a fully-classified code would — fine for test
+              // mode, but pick a more specific code via the Stripe
+              // Dashboard's Product Tax Code selector before going live.
+              tax_code: "txcd_10000000",
             },
           },
           quantity: 1,
