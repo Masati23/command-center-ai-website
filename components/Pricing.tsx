@@ -1,5 +1,6 @@
 import React from "react";
 import { Section, SectionHeading, GlassCard, Button } from "./ui";
+import AcademyCallout from "./AcademyCallout";
 
 interface Package {
   name: string;
@@ -39,7 +40,7 @@ const packages: Package[] = [
   {
     name: "Business Package",
     tag: "Complete AI Command Center",
-    price: "Starting at $2,999",
+    price: "Starting at $2,099",
     description: "Perfect for businesses ready to automate multiple business processes.",
     features: [
       "Everything in Growth",
@@ -50,22 +51,64 @@ const packages: Package[] = [
   },
 ];
 
-const supportTiers = [
+interface SupportTier {
+  name: string;
+  price: string;
+  features: string[];
+  highlighted?: boolean;
+}
+
+const supportTiers: SupportTier[] = [
   {
     name: "Basic",
-    price: "$99",
+    price: "Starting at $99/month",
     features: ["System monitoring", "Monthly health check", "Minor content updates", "Email support"],
   },
   {
     name: "Growth",
-    price: "$149",
+    price: "Starting at $149/month",
     features: ["Everything in Basic", "Priority response times", "Monthly performance report", "Workflow adjustments"],
     highlighted: true,
   },
   {
     name: "Premium",
-    price: "$249",
+    price: "Starting at $249/month",
     features: ["Everything in Growth", "Dedicated support line", "Ongoing optimization", "Quarterly strategy review"],
+  },
+];
+
+const supportIncludes = [
+  {
+    title: "Secure Hosting",
+    description: "Your AI system runs on monitored, secure infrastructure — no separate hosting to manage.",
+  },
+  {
+    title: "AI Model Updates",
+    description: "Ongoing updates as the underlying AI models improve, so your system keeps getting sharper.",
+  },
+  {
+    title: "Knowledge Base Updates",
+    description: "We keep your system's answers, services, and business details current as things change.",
+  },
+  {
+    title: "Performance Monitoring",
+    description: "Continuous monitoring to catch slowdowns or issues before they affect your customers.",
+  },
+  {
+    title: "Bug Fixes & Maintenance",
+    description: "Any issues that come up are diagnosed and resolved as part of your plan.",
+  },
+  {
+    title: "Usage Analytics",
+    description: "Visibility into how your AI system is performing and being used, month over month.",
+  },
+  {
+    title: "Email Support",
+    description: "Direct email access to our team whenever you have a question or request.",
+  },
+  {
+    title: "Priority Support",
+    description: "Faster response times and hands-on assistance on higher support tiers.",
   },
 ];
 
@@ -118,7 +161,7 @@ export default function Pricing() {
         ))}
       </div>
 
-      {/* Monthly support tiers */}
+      {/* Monthly Support Plans */}
       <div className="mt-28">
         <SectionHeading
           eyebrow="Ongoing Support"
@@ -135,10 +178,7 @@ export default function Pricing() {
               }`}
             >
               <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
-              <p className="mt-4 text-3xl font-semibold text-white">
-                {tier.price}
-                <span className="text-base font-normal text-silver-500">/month</span>
-              </p>
+              <p className="mt-4 text-3xl font-semibold text-white">{tier.price}</p>
 
               <ul className="mt-6 flex-1 space-y-3">
                 {tier.features.map((f) => (
@@ -161,6 +201,33 @@ export default function Pricing() {
             </GlassCard>
           ))}
         </div>
+      </div>
+
+      {/* What's included in Monthly Support & Hosting */}
+      <div className="mt-28">
+        <SectionHeading
+          eyebrow="What's Included"
+          title="What's Included in Monthly Support & Hosting"
+          description="Every support plan keeps your AI system secure, current, and performing."
+        />
+
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {supportIncludes.map((item) => (
+            <GlassCard key={item.title} className="p-6">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-electric-500/15">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2.5">
+                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h4 className="mt-4 text-sm font-semibold text-white">{item.title}</h4>
+              <p className="mt-1.5 text-xs leading-relaxed text-silver-400">{item.description}</p>
+            </GlassCard>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto mt-16 max-w-3xl">
+        <AcademyCallout />
       </div>
     </Section>
   );

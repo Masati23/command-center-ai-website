@@ -47,7 +47,13 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-3 lg:flex">
+          <a
+            href="https://CommandCenterAIAcademy.com"
+            className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-silver-400 transition-colors hover:text-white"
+          >
+            Learn to DIY →
+          </a>
           <Button href="#contact" variant="primary" className="!px-5 !py-2.5 whitespace-nowrap">
             Free AI Consultation
           </Button>
@@ -82,6 +88,13 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            <a
+              href="https://CommandCenterAIAcademy.com"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-3 text-base font-medium text-silver-400 hover:bg-white/5 hover:text-white"
+            >
+              Learn to DIY at the Academy →
+            </a>
             <Button href="#contact" variant="primary" className="mt-3 w-full" onClick={() => setOpen(false)}>
               Free AI Consultation
             </Button>

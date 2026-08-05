@@ -54,7 +54,7 @@ as a durable record. Two more things turn it into a full lead pipeline:
 3. Copy your API key and add it as `RESEND_API_KEY` in your environment variables
    (`.env.local` for local dev, Vercel → Project → Settings → Environment Variables
    for production).
-4. Redeploy. Every consultation request now emails `alfred@commandcenterai.net`
+4. Redeploy. Every consultation request now emails `commandcenterai.contact@gmail.com`
    immediately (change the recipient with `CONTACT_NOTIFY_EMAIL`).
 
 **2. CRM connection (whenever you're ready)**

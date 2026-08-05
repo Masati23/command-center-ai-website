@@ -24,6 +24,10 @@ const faqs = [
     q: "Can it integrate with my existing software?",
     a: "In most cases, yes. We regularly integrate with calendars, CRMs, websites, and messaging tools. Let us know what you're currently using and we'll confirm compatibility before we start.",
   },
+  {
+    q: "What if I want to learn to build this myself instead?",
+    a: "That's what Command Center AI Academy is for. Command Center AI builds AI systems for you; the Academy teaches you to build them yourself. Visit CommandCenterAIAcademy.com to learn more.",
+  },
 ];
 
 export default function FAQ() {

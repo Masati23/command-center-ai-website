@@ -37,6 +37,12 @@ export default function Hero() {
             15–30 minute consultation &bull; No obligation
           </p>
 
+          <p className="mt-3 text-center text-sm lg:text-left">
+            <a href="/assessment" className="font-medium text-electric-400 hover:underline">
+              Not sure where to start? Take the Free AI Business Assessment →
+            </a>
+          </p>
+
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-silver-500 lg:justify-start">
             <span>Houston, Texas</span>
             <span className="h-1 w-1 rounded-full bg-silver-500" />

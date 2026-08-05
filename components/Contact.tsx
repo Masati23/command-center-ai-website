@@ -21,6 +21,7 @@ export default function Contact() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       company: (form.elements.namedItem("company") as HTMLInputElement).value,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+      website: (form.elements.namedItem("website") as HTMLInputElement).value,
     };
 
     try {
@@ -87,6 +88,14 @@ export default function Contact() {
         <div className="lg:col-span-3">
           <GlassCard className="p-8">
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Honeypot — hidden from real visitors via CSS (not type="hidden",
+                  which bots specifically know to skip), invisible to screen
+                  readers via aria-hidden + tabIndex, never rendered visibly. */}
+              <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
+                <label htmlFor="website">Website</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+              </div>
+
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-silver-400">

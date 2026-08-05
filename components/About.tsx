@@ -53,8 +53,8 @@ export default function About() {
           </p>
           <div className="mt-6 border-t border-white/5 pt-6 text-sm text-silver-400">
             <p>Houston, Texas</p>
-            <a href="mailto:alfred@commandcenterai.net" className="text-electric-400 hover:underline">
-              alfred@commandcenterai.net
+            <a href="mailto:commandcenterai.contact@gmail.com" className="text-electric-400 hover:underline">
+              commandcenterai.contact@gmail.com
             </a>
           </div>
         </GlassCard>

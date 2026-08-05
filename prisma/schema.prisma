@@ -1,0 +1,431 @@
+// Command Center AI — database schema
+// Provider-agnostic Postgres. Works with Vercel Postgres, Supabase, or Neon —
+// just set DATABASE_URL. See .env.example.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// People
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id           String   @id @default(cuid())
+  name         String
+  businessName String?
+  email        String   @unique
+  phone        String?
+  passwordHash String? // set on first portal login / account claim, not at assessment time
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessments Assessment[]
+  proposals   Proposal[]
+  orders      Order[]
+  tickets     SupportTicket[]
+
+  @@map("customers")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("admin") // admin | super_admin
+  createdAt    DateTime @default(now())
+
+  @@map("admin_users")
+}
+
+// ---------------------------------------------------------------------------
+// Assessment
+// ---------------------------------------------------------------------------
+
+enum AssessmentStatus {
+  DRAFT
+  SUBMITTED
+  ABANDONED
+}
+
+model Assessment {
+  id         String           @id @default(cuid())
+  customerId String?
+  customer   Customer?        @relation(fields: [customerId], references: [id])
+  status     AssessmentStatus @default(DRAFT)
+
+  // One JSON blob per section keeps the question set editable (admin-configurable)
+  // without a schema migration every time a question is added or changed.
+  businessProfile     Json?
+  customerFlow        Json?
+  salesFollowUp       Json?
+  appointmentsService  Json?
+  operationsAutomation Json?
+  softwareIntegrations Json?
+  goalsTimelineBudget  Json?
+
+  currentSection Int @default(1) // 1-7, drives the progress bar / resume position
+
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  score         Score?
+  recommendations Recommendation[]
+  proposal      Proposal?
+
+  @@map("assessments")
+  @@index([status])
+  @@index([customerId])
+}
+
+model Score {
+  id           String     @id @default(cuid())
+  assessmentId String     @unique
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+
+  leadResponseScore         Int
+  followUpScore              Int
+  appointmentAutomationScore Int
+  customerServiceScore       Int
+  operationalEfficiencyScore Int
+  integrationComplexityScore Int
+
+  overallReadinessScore Int // 0-100, average of the 5 customer-facing sub-scores
+  complexityTier         String // "low" | "medium" | "high" | "custom"
+
+  createdAt DateTime @default(now())
+
+  @@map("scores")
+}
+
+// ---------------------------------------------------------------------------
+// Product catalog — this table is what makes "unlimited AI products without
+// rebuilding the website" real. Everything the site shows for a product is
+// data here, not hardcoded JSX.
+// ---------------------------------------------------------------------------
+
+enum ProductCategory {
+  CORE
+  MODULE
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  RETIRED
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  description    String
+  category       ProductCategory
+  basePrice      Int // cents
+  monthlySupport Int // cents
+  buildTimeDays  Int // estimated build time, in days
+  features       Json // string[]
+  tags           Json // string[] — used by the recommendation engine
+  imageUrl       String?
+  videoUrl       String?
+  integrations   Json? // string[]
+  status         ProductStatus   @default(ACTIVE)
+  sortOrder      Int             @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recommendations Recommendation[]
+  orderItems      OrderItem[]
+
+  @@map("products")
+}
+
+model Recommendation {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id])
+
+  priorityTier String // "recommended_first" | "recommended_next" | "optional_upgrade"
+  weightScore  Int // raw tag-match weight, for admin visibility/debugging
+
+  approved  Boolean @default(true) // admin can uncheck / adjust a recommendation
+  adjusted  Boolean @default(false)
+
+  @@map("recommendations")
+  @@index([assessmentId])
+}
+
+// ---------------------------------------------------------------------------
+// Pricing configuration — admin-editable, not hardcoded
+// ---------------------------------------------------------------------------
+
+model BundleRule {
+  id          String @id @default(cuid())
+  minItems    Int // 2, 3, 4
+  discountPct Int // whole percent, e.g. 5, 10
+  isCustomTier Boolean @default(false) // true for the "4+" custom-pricing rule
+  editable    Boolean @default(true)
+
+  @@map("bundle_rules")
+}
+
+model PricingConfig {
+  id    String @id @default(cuid())
+  key   String @unique // e.g. "integration_cost_per_system", "pricing_floor_medium"
+  value Int // cents, or a weight int depending on key — see lib/pricing.ts for usage
+  label String
+  group String // "cost_add" | "pricing_floor" | "scoring_weight"
+
+  @@map("pricing_config")
+}
+
+// ---------------------------------------------------------------------------
+// Proposal
+// ---------------------------------------------------------------------------
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+}
+
+model Proposal {
+  id           String         @id @default(cuid())
+  assessmentId String         @unique
+  assessment   Assessment     @relation(fields: [assessmentId], references: [id])
+  customerId   String?
+  customer     Customer?      @relation(fields: [customerId], references: [id])
+
+  recommendedProductsSnapshot Json // frozen copy at time of proposal generation
+  pricingSnapshot              Json // { subtotal, bundleDiscount, finalEstimateLow, finalEstimateHigh, monthlySupport }
+  path                         String // "standard" | "deposit" | "consultation"
+
+  pdfUrl String?
+  status ProposalStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("proposals")
+}
+
+// ---------------------------------------------------------------------------
+// Orders / Payments
+// ---------------------------------------------------------------------------
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  FAILED
+  CANCELLED
+}
+
+enum PaymentPlanType {
+  FULL
+  DEPOSIT
+  MONTHLY
+}
+
+model Order {
+  id         String          @id @default(cuid())
+  customerId String
+  customer   Customer        @relation(fields: [customerId], references: [id])
+  proposalId String?
+  proposal   Proposal?       @relation(fields: [proposalId], references: [id])
+
+  path            String // "standard" | "deposit" | "consultation"
+  paymentPlanType PaymentPlanType @default(FULL)
+
+  amountTotal   Int // cents — full project value
+  amountDue     Int // cents — what this order/session actually charges now
+  status        OrderStatus @default(PENDING)
+
+  stripeCheckoutSessionId String? @unique
+  stripeCustomerId        String?
+  stripeSubscriptionId    String? // set when paymentPlanType == MONTHLY
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items          OrderItem[]
+  payments       Payment[]
+  onboardingTasks OnboardingTask[]
+
+  @@map("orders")
+  @@index([customerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  price     Int // cents, price at time of order (frozen, independent of future product price changes)
+
+  @@map("order_items")
+}
+
+enum PaymentStatus {
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id      String  @id @default(cuid())
+  orderId String
+  order   Order   @relation(fields: [orderId], references: [id])
+
+  stripePaymentIntentId String        @unique
+  stripeEventId         String        @unique // idempotency key — see webhook handler
+  amount                Int // cents
+  status                PaymentStatus
+  receiptUrl            String?
+
+  createdAt DateTime @default(now())
+
+  @@map("payments")
+  @@index([orderId])
+}
+
+// ---------------------------------------------------------------------------
+// Onboarding / Portal
+// ---------------------------------------------------------------------------
+
+enum OnboardingTaskStatus {
+  PENDING
+  COMPLETED
+}
+
+model OnboardingTask {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  taskName  String // e.g. "Provide logo", "Grant website access"
+  assetType String? // "logo" | "brand_colors" | "website_access" | "domain_access" |
+  // "business_hours" | "services" | "faqs" | "calendar_access" | "crm_access" | "api_keys"
+  status    OnboardingTaskStatus @default(PENDING)
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("onboarding_tasks")
+}
+
+model SupportTicket {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  subject String
+  status  String @default("open") // open | pending | closed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("support_tickets")
+}
+
+// ---------------------------------------------------------------------------
+// Promotions
+// ---------------------------------------------------------------------------
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  discountPct Int?
+  discountFlat Int? // cents
+  active      Boolean  @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  @@map("coupons")
+}
+
+// ---------------------------------------------------------------------------
+// Contact form — persisted so the owner dashboard can surface submissions,
+// not just the email notification.
+// ---------------------------------------------------------------------------
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("contact_submissions")
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// AI Sales & Support Chatbot (Priority 4) — conversations saved in full for
+// owner review, per spec. No live LLM calls wired in yet; see
+// app/api/chatbot/route.ts for the exact credential this needs to activate.
+// ---------------------------------------------------------------------------
+
+model ChatConversation {
+  id         String   @id @default(cuid())
+  sessionId  String   @unique // client-generated id, persisted in localStorage
+  language   String   @default("en") // "en" | "es"
+  leadCaptured Boolean @default(false)
+  customerEmail String?
+  serviceInterest String? // best-guess product slug the conversation centered on
+  startedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+  role           String // "user" | "assistant"
+  content        String
+  // Set true when the assistant's own response indicates it didn't have a
+  // confident answer — surfaces in the dashboard's "Unanswered Questions"
+  // view so gaps in the knowledge base are visible.
+  flaggedUnanswered Boolean @default(false)
+  createdAt      DateTime         @default(now())
+
+  @@map("chat_messages")
+  @@index([conversationId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit log — required per security spec: log assessment, proposal, checkout,
+// payment, and onboarding events.
+// ---------------------------------------------------------------------------
+
+model EventLog {
+  id        String   @id @default(cuid())
+  type      String // "assessment_started" | "assessment_submitted" | "proposal_created" |
+  // "checkout_started" | "payment_succeeded" | "onboarding_task_completed" | ...
+  refId     String? // id of the related record (assessment/order/etc.)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("event_log")
+  @@index([type])
+  @@index([refId])
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Section, SectionHeading, Badge, Button } from "./ui";
+import AcademyCallout from "./AcademyCallout";
 import ChatbotMockup from "./dashboards/ChatbotMockup";
 import BookingMockup from "./dashboards/BookingMockup";
 import CrmMockup from "./dashboards/CrmMockup";
@@ -77,7 +78,7 @@ const services: Service[] = [
   {
     tag: "Service 04",
     name: "AI Business Command Center",
-    price: "Starting at $2,999",
+    price: "Starting at $2,099",
     description: "One executive dashboard that runs your entire operation on autopilot.",
     features: [
       "Executive dashboard",
@@ -139,6 +140,10 @@ export default function Services() {
             <div>{service.visual}</div>
           </div>
         ))}
+      </div>
+
+      <div className="mx-auto mt-16 max-w-3xl">
+        <AcademyCallout />
       </div>
     </Section>
   );

@@ -25,7 +25,13 @@ export default function Footer() {
               <li><a href="#solutions" className="hover:text-white">Solutions</a></li>
               <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
               <li><a href="#about" className="hover:text-white">About</a></li>
+              <li><a href="/assessment" className="hover:text-white">Free AI Business Assessment</a></li>
               <li><a href="#contact" className="hover:text-white">Contact</a></li>
+              <li>
+                <a href="https://CommandCenterAIAcademy.com" className="hover:text-white">
+                  Command Center AI Academy (Learn to DIY)
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -51,7 +57,12 @@ export default function Footer() {
           <p className="text-xs text-silver-500">
             &copy; {year} Command Center AI. All rights reserved.
           </p>
-          <p className="text-xs text-silver-500">Houston, Texas</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-silver-500">
+            <a href="/legal/privacy" className="hover:text-white">Privacy Policy</a>
+            <a href="/legal/terms" className="hover:text-white">Terms of Service</a>
+            <a href="/legal/refund-policy" className="hover:text-white">Refund Policy</a>
+            <span>Houston, Texas</span>
+          </div>
         </div>
       </div>
     </footer>

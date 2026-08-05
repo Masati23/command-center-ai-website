@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ConditionalChatWidget from "@/components/chatbot/ConditionalChatWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -87,7 +88,7 @@ export default function RootLayout({
     image: `${siteUrl}/opengraph-image`,
     url: siteUrl,
     telephone: "+1-832-744-1631",
-    email: "alfred@commandcenterai.net",
+    email: "commandcenterai.contact@gmail.com",
     founder: {
       "@type": "Person",
       name: "Alfred Joe Acosta",
@@ -100,7 +101,7 @@ export default function RootLayout({
       addressCountry: "US",
     },
     description,
-    priceRange: "$449 - $1999",
+    priceRange: "$599 - $2099",
     areaServed: "US",
   };
 
@@ -114,6 +115,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <div className="app-shell">{children}</div>
+        <ConditionalChatWidget />
       </body>
     </html>
   );

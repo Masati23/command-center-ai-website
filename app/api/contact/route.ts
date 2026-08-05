@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { db } from "@/lib/db";
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -9,18 +11,36 @@ interface ContactPayload {
   phone?: string;
   company?: string;
   message?: string;
+  // Honeypot — a field real visitors never see or fill in (hidden via CSS
+  // in the form, not `type="hidden"`, since bots specifically skip those).
+  // Any value here means it's a bot; reject silently with a 200 so the bot
+  // doesn't learn its submission was detected.
+  website?: string;
 }
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-const NOTIFY_EMAIL = process.env.CONTACT_NOTIFY_EMAIL || "alfred@commandcenterai.net";
+const NOTIFY_EMAIL = process.env.CONTACT_NOTIFY_EMAIL || "commandcenterai.contact@gmail.com";
 
 export async function POST(req: NextRequest) {
   try {
     const body: ContactPayload = await req.json();
-    const { name, email, phone, company, message } = body;
+    const { name, email, phone, company, message, website } = body;
+
+    if (website) {
+      // Honeypot tripped — pretend success, do nothing.
+      return NextResponse.json({ ok: true });
+    }
+
+    const rateLimitKey = getClientIp(req);
+    if (isRateLimited(rateLimitKey, 5, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { ok: false, error: "Too many requests. Please try again in a few minutes." },
+        { status: 429 }
+      );
+    }
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -51,6 +71,17 @@ export async function POST(req: NextRequest) {
     // aren't configured yet.
     console.log("New consultation request:", submission);
 
+    // Persisted so it shows up in the owner dashboard, not just email/logs.
+    // Non-fatal if the database isn't configured yet — the form still works
+    // via email/CRM webhook either way.
+    try {
+      await db.contactSubmission.create({
+        data: { name, email, phone: phone || null, company: company || null, message },
+      });
+    } catch (dbErr) {
+      console.error("Failed to persist contact submission:", dbErr);
+    }
+
     // -----------------------------------------------------------------
     // 1) Immediate email notification via Resend.
     // Setup (takes ~5 minutes):
@@ -61,7 +92,7 @@ export async function POST(req: NextRequest) {
     //      (.env.local for local dev, Vercel Project Settings →
     //      Environment Variables for production).
     // Optional: set CONTACT_NOTIFY_EMAIL to change who receives the
-    // notification (defaults to alfred@commandcenterai.net).
+    // notification (defaults to commandcenterai.contact@gmail.com).
     // -----------------------------------------------------------------
     if (process.env.RESEND_API_KEY) {
       try {
