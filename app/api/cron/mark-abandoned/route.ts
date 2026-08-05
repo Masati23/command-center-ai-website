@@ -4,9 +4,11 @@ import { markAbandonedAssessments } from "@/lib/assessment-lifecycle";
 export const runtime = "nodejs";
 
 /**
- * Intended to run on a Vercel Cron schedule (e.g. hourly). Add to
- * vercel.json:
- *   { "crons": [{ "path": "/api/cron/mark-abandoned", "schedule": "0 * * * *" }] }
+ * Runs once daily via Vercel Cron (see vercel.json) — the Hobby plan caps
+ * cron jobs at once per day, so this can't run hourly. ABANDONED_AFTER_HOURS
+ * in lib/assessment-lifecycle.ts is 48, so a once-daily sweep still catches
+ * every stale draft well within that window; it just doesn't need to run
+ * more often than that to do so.
  * Vercel automatically authenticates its own cron requests; the CRON_SECRET
  * check below additionally protects this endpoint from being triggered by
  * anyone else if it's ever called manually.
