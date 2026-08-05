@@ -16,13 +16,13 @@ const copy = {
   en: {
     greeting: "Hi! I can answer questions about our AI systems, pricing, and which one fits your business. What are you looking to automate?",
     placeholder: "Type a message…",
-    unavailable: "Chat is temporarily unavailable — try the Free AI Consultation form instead.",
+    unavailable: "Our AI assistant is temporarily unavailable. Please try again shortly or request a free consultation.",
     title: "Command Center AI Assistant",
   },
   es: {
     greeting: "¡Hola! Puedo responder preguntas sobre nuestros sistemas de IA, precios y cuál se adapta a tu negocio. ¿Qué te gustaría automatizar?",
     placeholder: "Escribe un mensaje…",
-    unavailable: "El chat no está disponible temporalmente — prueba el formulario de Consulta Gratuita.",
+    unavailable: "Nuestro asistente de IA no está disponible temporalmente. Inténtalo de nuevo en un momento o solicita una consulta gratuita.",
     title: "Asistente de Command Center AI",
   },
 };
@@ -95,7 +95,11 @@ export default function ChatWidget() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessages((prev) => [...prev, { role: "assistant", content: data.error || copy[language].unavailable }]);
+        // Deliberately ignores whatever the server sent in `data.error` for
+        // display — the server now always sends a customer-safe message
+        // too, but the client shouldn't depend on that holding true forever.
+        // Always show our own known-safe local copy instead.
+        setMessages((prev) => [...prev, { role: "assistant", content: copy[language].unavailable }]);
       } else {
         setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
       }
