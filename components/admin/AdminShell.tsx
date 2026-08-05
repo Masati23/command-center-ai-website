@@ -8,9 +8,12 @@ import { LogoMark } from "@/components/Logo";
 const navLinks = [
   { label: "Overview", href: "/admin" },
   { label: "Leads", href: "/admin/leads" },
-  { label: "Orders & Payments", href: "/admin/orders" },
   { label: "Contact Submissions", href: "/admin/contacts" },
-  { label: "Chatbot", href: "/admin/chatbot" },
+  { label: "Consultation Requests", href: "/admin/consultations" },
+  { label: "Chat Insights", href: "/admin/chatbot" },
+  { label: "Orders & Payments", href: "/admin/orders" },
+  { label: "Service Interest", href: "/admin/service-interest" },
+  { label: "System Health", href: "/admin/system-health" },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -42,19 +45,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       <nav className="border-b border-white/5 px-6">
         <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
-                pathname === link.href
-                  ? "border-electric-500 text-white"
-                  : "border-transparent text-silver-400 hover:text-white"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = link.href === "/admin" ? pathname === "/admin" : pathname?.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors ${
+                  active ? "border-electric-500 text-white" : "border-transparent text-silver-400 hover:text-white"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
 

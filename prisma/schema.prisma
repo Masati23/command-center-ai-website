@@ -362,6 +362,12 @@ model Coupon {
 // not just the email notification.
 // ---------------------------------------------------------------------------
 
+// Backs both the "Contact Submissions" and "Consultation Requests" admin
+// dashboard sections — there is only one public form (the Free AI
+// Consultation form), so every submission genuinely is both at once. The
+// two dashboard pages are different views/filters over this same table,
+// not separate data, so there's exactly one record and one status per
+// visitor inquiry, never two out-of-sync copies.
 model ContactSubmission {
   id        String   @id @default(cuid())
   name      String
@@ -371,8 +377,23 @@ model ContactSubmission {
   message   String
   createdAt DateTime @default(now())
 
+  // Consultation-specific fields — voluntary, so all optional. The
+  // current form doesn't collect these yet; they're here so the schema
+  // is ready if/when the form is extended, and so manually-logged
+  // consultations (e.g. from a phone call) have somewhere to go.
+  serviceInterest        String? // product slug, when known
+  budget                 String?
+  preferredContactMethod String?
+  preferredContactTime   String?
+  language                String  @default("en")
+  referralSource          String?
+
+  status     String  @default("new") // new | contacted | qualified | won | closed
+  ownerNotes String?
+
   @@map("contact_submissions")
   @@index([createdAt])
+  @@index([status])
 }
 
 // ---------------------------------------------------------------------------

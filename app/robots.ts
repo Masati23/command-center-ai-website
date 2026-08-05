@@ -5,6 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: ["/admin", "/admin/"],
     },
     sitemap: "https://www.commandcenterai.net/sitemap.xml",
     host: "https://www.commandcenterai.net",
