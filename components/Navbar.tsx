@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { LogoFull } from "./Logo";
+import Image from "next/image";
 import { Button } from "./ui";
 import LanguageToggle from "./LanguageToggle";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -35,7 +35,14 @@ export default function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         <Link href="#home" className="shrink-0" aria-label="Command Center AI home">
-          <LogoFull markClassName="h-9 w-9 sm:h-10 sm:w-10" />
+          <Image
+            src="/logo-header.png"
+            alt="Command Center AI"
+            width={1356}
+            height={326}
+            priority
+            className="h-8 w-auto sm:h-9"
+          />
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">
