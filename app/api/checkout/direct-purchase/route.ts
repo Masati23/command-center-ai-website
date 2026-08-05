@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      payment_method_types: ["card", "us_bank_account"],
       customer_creation: "always",
       phone_number_collection: { enabled: true },
       billing_address_collection: "auto",
