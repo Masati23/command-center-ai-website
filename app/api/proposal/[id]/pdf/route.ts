@@ -5,6 +5,10 @@ import { db } from "@/lib/db";
 import { ProposalDocument } from "@/lib/pdf/ProposalDocument";
 
 export const runtime = "nodejs";
+// Same confirmed cause as the cron route: this file's GET handler queries
+// the database with no dynamic-rendering trigger present, so Next.js would
+// try to statically evaluate it at build time.
+export const dynamic = "force-dynamic";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const proposal = await db.proposal.findUnique({

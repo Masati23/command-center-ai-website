@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { markAbandonedAssessments } from "@/lib/assessment-lifecycle";
 
 export const runtime = "nodejs";
+// Without this, Next.js has no signal that this route touches a database
+// and tries to statically evaluate it at build time — executing a real DB
+// call during `next build`, before DATABASE_URL's schema even exists. This
+// is the confirmed cause of the "Export encountered errors" build failure.
+export const dynamic = "force-dynamic";
 
 /**
  * Runs once daily via Vercel Cron (see vercel.json) — the Hobby plan caps
