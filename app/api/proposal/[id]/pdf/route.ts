@@ -16,6 +16,12 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: "Proposal not found" }, { status: 404 });
   }
 
+  // `as any` bridges a compile-time-only type mismatch: renderToBuffer's
+  // TypeScript signature expects its own <Document> element type, but this
+  // is a plain .ts file (no JSX), so ProposalDocument must be instantiated
+  // via React.createElement — which is typed to the wrapper component's own
+  // props, not @react-pdf/renderer's DocumentProps. The element it produces
+  // at runtime is identical either way; this doesn't change PDF output.
   const buffer = await renderToBuffer(
     React.createElement(ProposalDocument, {
       proposalId: proposal.id,
@@ -26,7 +32,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       recommendedProducts: proposal.recommendedProductsSnapshot as any,
       pricing: proposal.pricingSnapshot as any,
       overallReadinessScore: proposal.assessment.score.overallReadinessScore,
-    })
+    }) as any
   );
 
   await db.eventLog.create({
