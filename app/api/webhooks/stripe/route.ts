@@ -78,6 +78,12 @@ function isUniqueConstraintError(err: unknown): boolean {
 
 async function handleCheckoutCompleted(event: Stripe.Event) {
   const session = event.data.object as Stripe.Checkout.Session;
+
+  if (session.metadata?.source === "direct_purchase") {
+    await handleDirectPurchaseCompleted(event, session);
+    return;
+  }
+
   const orderId = session.metadata?.orderId;
   if (!orderId) return;
 
@@ -133,6 +139,87 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
   // Project record linked to this order, for the owner dashboard (Priority
   // 6) to surface build progress against. Deferred to that phase since it
   // needs the dashboard's data shape decided first.
+}
+
+/**
+ * Direct "Buy Starter Package" purchases (app/api/checkout/direct-purchase)
+ * never created a Customer or Order before redirecting to Stripe — unlike
+ * the proposal flow, there's no assessment that already collected the
+ * buyer's info. Stripe Checkout itself collected name/email/phone on its
+ * hosted page, so this is the first and only place those records get
+ * created, and only after Stripe has confirmed the payment.
+ */
+async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Stripe.Checkout.Session) {
+  const productSlug = session.metadata?.productSlug;
+  if (!productSlug) return;
+
+  const product = await db.product.findUnique({ where: { slug: productSlug } });
+  if (!product) return;
+
+  const details = session.customer_details;
+  const email = details?.email ?? session.customer_email;
+  if (!email) {
+    console.error(`Direct-purchase session ${session.id} completed with no customer email — cannot record order.`);
+    return;
+  }
+  const name = details?.name ?? email;
+  const phone = details?.phone ?? undefined;
+
+  const customer = await db.customer.upsert({
+    where: { email },
+    update: { name, phone: phone ?? undefined },
+    create: { name, email, phone },
+  });
+
+  const amountPaid = session.amount_total ?? product.basePrice;
+
+  const order = await db.order.create({
+    data: {
+      customerId: customer.id,
+      proposalId: null,
+      path: "direct_purchase",
+      paymentPlanType: "FULL",
+      amountTotal: product.basePrice,
+      amountDue: amountPaid,
+      status: "PAID",
+      stripeCheckoutSessionId: session.id,
+      stripeCustomerId: typeof session.customer === "string" ? session.customer : undefined,
+      items: { create: [{ productId: product.id, price: product.basePrice }] },
+    },
+  });
+
+  await db.payment.create({
+    data: {
+      orderId: order.id,
+      stripePaymentIntentId:
+        typeof session.payment_intent === "string" ? session.payment_intent : `session_${session.id}`,
+      stripeEventId: event.id, // idempotency key — duplicate deliveries hit this unique constraint
+      amount: amountPaid,
+      status: "SUCCEEDED",
+      receiptUrl: null,
+    },
+  });
+
+  await db.eventLog.create({
+    data: {
+      type: "payment_succeeded",
+      refId: order.id,
+      metadata: { stripeEventId: event.id, source: "direct_purchase", productSlug: product.slug },
+    },
+  });
+
+  await sendOrderConfirmationEmails({
+    orderId: order.id,
+    customerName: customer.name,
+    customerEmail: customer.email,
+    businessName: customer.businessName ?? undefined,
+    amountPaidCents: amountPaid,
+    amountTotalCents: product.basePrice,
+    status: "PAID",
+    paymentPlanType: "FULL",
+  });
+
+  // Priority 3 (purchase SMS + email alerts to the owner) hooks in here next.
 }
 
 async function handleInvoicePaymentSucceeded(event: Stripe.Event) {

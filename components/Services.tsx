@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Section, SectionHeading, Badge, Button } from "./ui";
 import AcademyCallout from "./AcademyCallout";
 import ChatbotMockup from "./dashboards/ChatbotMockup";
@@ -30,6 +30,7 @@ interface Service {
   tag: string;
   nameKey: TranslationKey;
   price: string;
+  productSlug: string;
   descriptionKey: TranslationKey;
   featureKeys: TranslationKey[];
   visual: React.ReactNode;
@@ -40,6 +41,7 @@ const services: Service[] = [
     tag: "Service 01",
     nameKey: "services.chatbot.name",
     price: "Starting at $599",
+    productSlug: "ai-website-chatbot",
     descriptionKey: "services.chatbot.description",
     featureKeys: [
       "feature.answers24_7",
@@ -55,6 +57,7 @@ const services: Service[] = [
     tag: "Service 02",
     nameKey: "services.booking.name",
     price: "Starting at $899",
+    productSlug: "ai-appointment-booking",
     descriptionKey: "services.booking.description",
     featureKeys: [
       "feature.appointmentScheduling",
@@ -69,6 +72,7 @@ const services: Service[] = [
     tag: "Service 03",
     nameKey: "services.leadgen.name",
     price: "Starting at $1,499",
+    productSlug: "ai-lead-generation",
     descriptionKey: "services.leadgen.description",
     featureKeys: [
       "feature.leadDiscovery",
@@ -83,6 +87,7 @@ const services: Service[] = [
     tag: "Service 04",
     nameKey: "services.commandcenter.name",
     price: "Starting at $2,099",
+    productSlug: "ai-business-command-center",
     descriptionKey: "services.commandcenter.description",
     featureKeys: [
       "feature.executiveDashboard",
@@ -99,6 +104,24 @@ const services: Service[] = [
 
 export default function Services() {
   const { t } = useLanguage();
+  const [buyState, setBuyState] = useState<Record<string, "idle" | "loading" | "error">>({});
+
+  async function handleBuy(productSlug: string) {
+    setBuyState((s) => ({ ...s, [productSlug]: "loading" }));
+    try {
+      const res = await fetch("/api/checkout/direct-purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productSlug }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Buy Starter Package failed:", err);
+      setBuyState((s) => ({ ...s, [productSlug]: "error" }));
+    }
+  }
 
   return (
     <Section id="solutions">
@@ -123,7 +146,10 @@ export default function Services() {
 
               <p className="mt-5 text-2xl font-semibold text-gradient">{service.price}</p>
 
-              <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+              <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-silver-500">
+                {t("services.whatsIncluded")}
+              </p>
+              <ul className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
                 {service.featureKeys.map((fKey) => (
                   <li key={fKey} className="flex items-start gap-2.5 text-sm text-silver-300">
                     <CheckIcon />
@@ -132,11 +158,25 @@ export default function Services() {
                 ))}
               </ul>
 
-              <div className="mt-8">
+              <p className="mt-5 text-xs leading-relaxed text-silver-500">{t("services.costDisclaimer")}</p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => handleBuy(service.productSlug)}
+                >
+                  {buyState[service.productSlug] === "loading"
+                    ? t("services.buyProcessing")
+                    : t("services.buyStarterPackage")}
+                </Button>
                 <Button href="#contact" variant="secondary">
-                  {t("services.getStarted")}
+                  {t("services.freeConsultationQuote")}
                 </Button>
               </div>
+              {buyState[service.productSlug] === "error" && (
+                <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
+              )}
             </div>
 
             <div>{service.visual}</div>

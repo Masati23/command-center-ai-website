@@ -40,6 +40,21 @@ export const translations = {
     es: "Cada solución está configurada a medida para tu empresa — no es un bot genérico. Elige una, o combínalas en un centro de comando completo.",
   },
   "services.getStarted": { en: "Free AI Consultation", es: "Consulta Gratuita de IA" },
+  "services.buyStarterPackage": { en: "Buy Starter Package", es: "Comprar Paquete Inicial" },
+  "services.freeConsultationQuote": {
+    en: "Free Consultation / Custom Quote",
+    es: "Consulta Gratuita / Cotización Personalizada",
+  },
+  "services.whatsIncluded": { en: "What's included at this price:", es: "Qué incluye este precio:" },
+  "services.costDisclaimer": {
+    en: "Additional features, integrations, users, locations, channels, automations, bilingual support, custom reporting, and ongoing support may increase the final cost.",
+    es: "Funciones, integraciones, usuarios, ubicaciones, canales, automatizaciones, soporte bilingüe, reportes personalizados y soporte continuo adicionales pueden aumentar el costo final.",
+  },
+  "services.buyProcessing": { en: "Starting checkout…", es: "Iniciando el pago…" },
+  "services.buyError": {
+    en: "Something went wrong starting checkout. Please try again or request a free consultation.",
+    es: "Algo salió mal al iniciar el pago. Intenta de nuevo o solicita una consulta gratuita.",
+  },
 
   "services.chatbot.name": { en: "AI Website Chatbot", es: "Chatbot de IA para tu Sitio Web" },
   "services.chatbot.description": {
