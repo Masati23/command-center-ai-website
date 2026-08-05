@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import { Section, SectionHeading, GlassCard, Button } from "./ui";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 type Status = "idle" | "loading" | "success" | "error";
 
 export default function Contact() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const { t } = useLanguage();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,23 +34,19 @@ export default function Contact() {
       });
       const json = await res.json();
       if (!res.ok || !json.ok) {
-        throw new Error(json.error || "Something went wrong.");
+        throw new Error(json.error || t("contact.form.errorGeneric"));
       }
       setStatus("success");
       form.reset();
     } catch (err: any) {
       setStatus("error");
-      setErrorMsg(err.message || "Something went wrong. Please try again.");
+      setErrorMsg(err.message || t("contact.form.errorGeneric"));
     }
   }
 
   return (
     <Section id="contact">
-      <SectionHeading
-        eyebrow="Contact"
-        title="Schedule Your Free AI Consultation"
-        description="Tell us about your business and we'll recommend the best AI solution for your goals, budget, and workflow."
-      />
+      <SectionHeading eyebrow={t("contact.eyebrow")} title={t("contact.title")} description={t("contact.description")} />
 
       <div className="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-5 lg:gap-16">
         {/* contact info */}
@@ -58,7 +56,7 @@ export default function Contact() {
               AA
             </div>
             <p className="mt-5 text-lg font-semibold text-white">Alfred Joe Acosta</p>
-            <p className="text-sm text-electric-400">Founder &amp; Chief AI Systems Architect</p>
+            <p className="text-sm text-electric-400">{t("about.founderTitle")}</p>
 
             <div className="mt-8 space-y-5">
               <a href="tel:+18327441631" className="flex items-center gap-3 text-sm text-silver-300 hover:text-white">
@@ -78,7 +76,7 @@ export default function Contact() {
                   <path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1 1 18 0Z" strokeLinecap="round" strokeLinejoin="round" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                Houston, Texas
+                {t("hero.location")}
               </div>
             </div>
           </GlassCard>
@@ -99,7 +97,7 @@ export default function Contact() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    Name
+                    {t("contact.form.name")}
                   </label>
                   <input
                     id="name"
@@ -107,12 +105,12 @@ export default function Contact() {
                     type="text"
                     required
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder="Your name"
+                    placeholder={t("contact.form.namePlaceholder")}
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    Email
+                    {t("contact.form.email")}
                   </label>
                   <input
                     id="email"
@@ -128,7 +126,7 @@ export default function Contact() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    Phone
+                    {t("contact.form.phone")}
                   </label>
                   <input
                     id="phone"
@@ -140,21 +138,21 @@ export default function Contact() {
                 </div>
                 <div>
                   <label htmlFor="company" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    Company
+                    {t("contact.form.company")}
                   </label>
                   <input
                     id="company"
                     name="company"
                     type="text"
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder="Your business"
+                    placeholder={t("contact.form.companyPlaceholder")}
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-silver-400">
-                  What do you want to automate?
+                  {t("contact.form.message")}
                 </label>
                 <textarea
                   id="message"
@@ -162,25 +160,19 @@ export default function Contact() {
                   required
                   rows={4}
                   className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                  placeholder="Tell us a bit about your business and what you're hoping to automate..."
+                  placeholder={t("contact.form.messagePlaceholder")}
                 />
               </div>
 
               <Button type="submit" variant="primary" className="w-full">
-                {status === "loading" ? "Sending…" : "Free AI Consultation"}
+                {status === "loading" ? t("contact.form.sending") : t("contact.form.submit")}
               </Button>
-              <p className="text-center text-xs text-silver-500">
-                15–30 minute consultation &bull; No obligation
-              </p>
+              <p className="text-center text-xs text-silver-500">{t("hero.trustLine")}</p>
 
               {status === "success" && (
-                <p className="text-center text-sm font-medium text-electric-400">
-                  Thanks! We'll be in touch shortly.
-                </p>
+                <p className="text-center text-sm font-medium text-electric-400">{t("contact.form.success")}</p>
               )}
-              {status === "error" && (
-                <p className="text-center text-sm font-medium text-red-400">{errorMsg}</p>
-              )}
+              {status === "error" && <p className="text-center text-sm font-medium text-red-400">{errorMsg}</p>}
             </form>
           </GlassCard>
         </div>

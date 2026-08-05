@@ -4,18 +4,21 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { LogoFull } from "./Logo";
 import { Button } from "./ui";
-
-const links = [
-  { label: "Home", href: "#home" },
-  { label: "Solutions", href: "#solutions" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
-];
+import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+
+  const links = [
+    { label: t("nav.home"), href: "#home" },
+    { label: t("nav.solutions"), href: "#solutions" },
+    { label: t("nav.pricing"), href: "#pricing" },
+    { label: t("nav.about"), href: "#about" },
+    { label: t("nav.contact"), href: "#contact" },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -48,31 +51,35 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <LanguageToggle />
           <a
             href="https://CommandCenterAIAcademy.com"
             className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-silver-400 transition-colors hover:text-white"
           >
-            Learn to DIY →
+            {t("nav.learnDiy")}
           </a>
           <Button href="#contact" variant="primary" className="!px-5 !py-2.5 whitespace-nowrap">
-            Free AI Consultation
+            {t("nav.freeConsultation")}
           </Button>
         </div>
 
-        <button
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-silver-200 lg:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-          aria-expanded={open}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? (
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            ) : (
-              <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-            )}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <LanguageToggle />
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-silver-200"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
+            aria-expanded={open}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {open ? (
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
+        </div>
       </nav>
 
       {open && (
@@ -93,10 +100,10 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-3 text-base font-medium text-silver-400 hover:bg-white/5 hover:text-white"
             >
-              Learn to DIY at the Academy →
+              {t("nav.learnDiyMobile")}
             </a>
             <Button href="#contact" variant="primary" className="mt-3 w-full" onClick={() => setOpen(false)}>
-              Free AI Consultation
+              {t("nav.freeConsultation")}
             </Button>
           </div>
         </div>

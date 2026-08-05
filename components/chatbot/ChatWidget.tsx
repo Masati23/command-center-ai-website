@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { LogoMark } from "@/components/Logo";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const SESSION_KEY = "cc_chat_session_id";
 
@@ -27,7 +28,7 @@ const copy = {
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [language, setLanguage] = useState<"en" | "es">("en");
+  const { language, setLanguage } = useLanguage(); // shared with the site-wide toggle in Navbar
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

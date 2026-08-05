@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Section, GlassCard, Badge, Button } from "@/components/ui";
+import { Section } from "@/components/ui";
 import { db } from "@/lib/db";
+import CheckoutStatusContent from "@/components/checkout/CheckoutStatusContent";
 
 export const dynamic = "force-dynamic";
 
@@ -27,22 +28,7 @@ export default async function CheckoutSuccessPage({
       <Navbar />
       <main>
         <Section className="pt-40 sm:pt-48">
-          <div className="mx-auto max-w-lg text-center">
-            <Badge>{confirmed ? "Payment Received" : "Processing"}</Badge>
-            <GlassCard className="mt-6 p-8">
-              <h1 className="text-2xl font-semibold text-white">
-                {confirmed ? "Thank you — you're all set." : "Confirming your payment…"}
-              </h1>
-              <p className="mt-4 text-sm leading-relaxed text-silver-400">
-                {confirmed
-                  ? "Your payment has been confirmed and your onboarding checklist has been created. We'll be in touch shortly with next steps."
-                  : "Stripe is finalizing your payment confirmation — this usually takes just a few seconds. Refresh this page in a moment, or check your email for a receipt."}
-              </p>
-              <Button href="/" variant="secondary" className="mt-6">
-                Back to Home
-              </Button>
-            </GlassCard>
-          </div>
+          <CheckoutStatusContent confirmed={confirmed} />
         </Section>
       </main>
       <Footer />

@@ -1,36 +1,33 @@
+"use client";
+
 import React from "react";
 import { Section, Badge, GlassCard } from "./ui";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
-const stats = [
-  { value: "24/7", label: "AI Coverage" },
-  { value: "4", label: "Core AI Systems" },
-  { value: "100%", label: "Custom Configured" },
+const stats: { value: string; labelKey: TranslationKey }[] = [
+  { value: "24/7", labelKey: "about.stat.coverage" },
+  { value: "4", labelKey: "about.stat.coreSystems" },
+  { value: "100%", labelKey: "about.stat.customConfigured" },
 ];
 
 export default function About() {
+  const { t } = useLanguage();
+
   return (
     <Section id="about">
       <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
         <div>
-          <Badge>About Command Center AI</Badge>
-          <h2 className="mt-6 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Practical AI, built for real businesses
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-silver-400">
-            Command Center AI builds practical AI solutions that help businesses automate
-            customer communication, lead generation, appointment booking, follow-up,
-            reporting, and daily operations.
-          </p>
-          <p className="mt-4 text-lg leading-relaxed text-silver-400">
-            We focus on delivering real business value through professional AI systems
-            that save time, improve customer experience, and help companies grow.
-          </p>
+          <Badge>{t("about.eyebrow")}</Badge>
+          <h2 className="mt-6 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{t("about.title")}</h2>
+          <p className="mt-6 text-lg leading-relaxed text-silver-400">{t("about.paragraph1")}</p>
+          <p className="mt-4 text-lg leading-relaxed text-silver-400">{t("about.paragraph2")}</p>
 
           <div className="mt-10 grid grid-cols-3 gap-6">
             {stats.map((s) => (
-              <div key={s.label}>
+              <div key={s.labelKey}>
                 <p className="text-2xl font-semibold text-gradient sm:text-3xl">{s.value}</p>
-                <p className="mt-1 text-xs text-silver-500">{s.label}</p>
+                <p className="mt-1 text-xs text-silver-500">{t(s.labelKey)}</p>
               </div>
             ))}
           </div>
@@ -43,16 +40,12 @@ export default function About() {
             </div>
             <div>
               <p className="text-lg font-semibold text-white">Alfred Joe Acosta</p>
-              <p className="text-sm text-electric-400">Founder &amp; Chief AI Systems Architect</p>
+              <p className="text-sm text-electric-400">{t("about.founderTitle")}</p>
             </div>
           </div>
-          <p className="mt-6 text-sm leading-relaxed text-silver-400">
-            "Every system we build has to earn its place in your business. That means it
-            has to work quietly, reliably, and make an obvious difference — not just look
-            impressive in a demo."
-          </p>
+          <p className="mt-6 text-sm leading-relaxed text-silver-400">&ldquo;{t("about.quote")}&rdquo;</p>
           <div className="mt-6 border-t border-white/5 pt-6 text-sm text-silver-400">
-            <p>Houston, Texas</p>
+            <p>{t("hero.location")}</p>
             <a href="mailto:commandcenterai.contact@gmail.com" className="text-electric-400 hover:underline">
               commandcenterai.contact@gmail.com
             </a>

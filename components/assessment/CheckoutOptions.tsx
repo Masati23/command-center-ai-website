@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 type PlanType = "FULL" | "DEPOSIT" | "MONTHLY";
 
-const planCopy: Record<PlanType, { label: string; description: string }> = {
-  FULL: { label: "Pay in Full", description: "One payment, nothing else due at setup." },
-  DEPOSIT: { label: "Deposit + Balance", description: "25% now to reserve your build slot, credited toward your final price. Remaining balance is invoiced once scope is confirmed." },
-  MONTHLY: { label: "Monthly Plan", description: "Spread the setup cost across a monthly payment plan." },
+const planCopyKeys: Record<PlanType, { labelKey: TranslationKey; descriptionKey: TranslationKey }> = {
+  FULL: { labelKey: "checkout.plan.full.label", descriptionKey: "checkout.plan.full.description" },
+  DEPOSIT: { labelKey: "checkout.plan.deposit.label", descriptionKey: "checkout.plan.deposit.description" },
+  MONTHLY: { labelKey: "checkout.plan.monthly.label", descriptionKey: "checkout.plan.monthly.description" },
 };
 
 /**
@@ -26,6 +28,7 @@ export default function CheckoutOptions({
   const [selected, setSelected] = useState<PlanType>(availablePlans[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   async function startCheckout() {
     setLoading(true);
@@ -38,11 +41,11 @@ export default function CheckoutOptions({
       });
       const data = await res.json();
       if (!res.ok || !data.url) {
-        throw new Error(data.error || "Could not start checkout.");
+        throw new Error(data.error || t("checkout.errorGeneric"));
       }
       window.location.href = data.url;
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || t("checkout.errorGeneric"));
       setLoading(false);
     }
   }
@@ -62,23 +65,20 @@ export default function CheckoutOptions({
                   : "border-white/10 bg-white/[0.02] text-silver-300 hover:border-white/20"
               }`}
             >
-              <p className="font-semibold">{planCopy[plan].label}</p>
-              <p className="mt-1 text-silver-500">{planCopy[plan].description}</p>
+              <p className="font-semibold">{t(planCopyKeys[plan].labelKey)}</p>
+              <p className="mt-1 text-silver-500">{t(planCopyKeys[plan].descriptionKey)}</p>
             </button>
           ))}
         </div>
       )}
 
       <Button variant="primary" className="mt-5 w-full" onClick={startCheckout}>
-        {loading ? "Redirecting to secure checkout…" : "Proceed to Secure Checkout"}
+        {loading ? t("checkout.redirecting") : t("checkout.proceedButton")}
       </Button>
 
       {error && <p className="mt-3 text-center text-sm text-red-400">{error}</p>}
 
-      <p className="mt-3 text-center text-[11px] text-silver-500">
-        Payment is handled entirely by Stripe's secure, hosted checkout. Command Center AI never sees or stores
-        your card details.
-      </p>
+      <p className="mt-3 text-center text-[11px] text-silver-500">{t("checkout.disclaimer")}</p>
     </div>
   );
 }

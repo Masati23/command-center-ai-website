@@ -2,52 +2,37 @@
 
 import React, { useState } from "react";
 import { Section, SectionHeading } from "./ui";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
-const faqs = [
-  {
-    q: "How long does setup take?",
-    a: "Most AI systems are configured and live within 5–10 business days, depending on the complexity of the solution and how quickly we can gather your business details (hours, services, integrations, etc.).",
-  },
-  {
-    q: "Can you customize the system?",
-    a: "Yes. Every system is configured around your business — your services, your tone of voice, your booking rules, and your existing tools. Nothing is a generic, one-size-fits-all bot.",
-  },
-  {
-    q: "Do you provide support?",
-    a: "Yes. Every project includes an onboarding period, and ongoing monthly support plans are available to keep your system monitored, updated, and optimized long-term.",
-  },
-  {
-    q: "Do I own my system?",
-    a: "Yes. Once built, the AI system is yours. Monthly support plans are optional and cover monitoring, updates, and optimization — they are not required for you to keep using what we build.",
-  },
-  {
-    q: "Can it integrate with my existing software?",
-    a: "In most cases, yes. We regularly integrate with calendars, CRMs, websites, and messaging tools. Let us know what you're currently using and we'll confirm compatibility before we start.",
-  },
-  {
-    q: "What if I want to learn to build this myself instead?",
-    a: "That's what Command Center AI Academy is for. Command Center AI builds AI systems for you; the Academy teaches you to build them yourself. Visit CommandCenterAIAcademy.com to learn more.",
-  },
+const faqs: { qKey: TranslationKey; aKey: TranslationKey }[] = [
+  { qKey: "faq.q1", aKey: "faq.a1" },
+  { qKey: "faq.q2", aKey: "faq.a2" },
+  { qKey: "faq.q3", aKey: "faq.a3" },
+  { qKey: "faq.q4", aKey: "faq.a4" },
+  { qKey: "faq.q5", aKey: "faq.a5" },
+  { qKey: "faq.q6", aKey: "faq.a6" },
 ];
 
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
+  const { t } = useLanguage();
 
   return (
     <Section>
-      <SectionHeading eyebrow="FAQ" title="Questions, answered" />
+      <SectionHeading eyebrow={t("faq.eyebrow")} title={t("faq.title")} />
 
       <div className="mx-auto mt-14 max-w-3xl space-y-4">
         {faqs.map((item, i) => {
           const isOpen = open === i;
           return (
-            <div key={item.q} className="glass overflow-hidden rounded-2xl">
+            <div key={item.qKey} className="glass overflow-hidden rounded-2xl">
               <button
                 className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
               >
-                <span className="text-base font-medium text-white">{item.q}</span>
+                <span className="text-base font-medium text-white">{t(item.qKey)}</span>
                 <svg
                   width="18"
                   height="18"
@@ -68,7 +53,7 @@ export default function FAQ() {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="px-6 pb-5 text-sm leading-relaxed text-silver-400">{item.a}</p>
+                  <p className="px-6 pb-5 text-sm leading-relaxed text-silver-400">{t(item.aKey)}</p>
                 </div>
               </div>
             </div>
