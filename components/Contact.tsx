@@ -52,19 +52,15 @@ export default function Contact() {
         {/* contact info */}
         <div className="lg:col-span-2">
           <GlassCard className="h-full p-8">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-electric-500/15 text-lg font-semibold text-electric-400">
-              AA
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-electric-500/15">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
+                <path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4Z" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-            <p className="mt-5 text-lg font-semibold text-white">Alfred Joe Acosta</p>
-            <p className="text-sm text-electric-400">{t("about.founderTitle")}</p>
+            <p className="mt-5 text-lg font-semibold text-white">{t("contact.card.company")}</p>
 
             <div className="mt-8 space-y-5">
-              <a href="tel:+18327441631" className="flex items-center gap-3 text-sm text-silver-300 hover:text-white">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.77.66 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.27a2 2 0 0 1 2.11-.45c.84.32 1.71.54 2.61.66A2 2 0 0 1 22 16.92Z" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                832-744-1631
-              </a>
               <a href="mailto:commandcenterai.contact@gmail.com" className="flex items-center gap-3 text-sm text-silver-300 hover:text-white">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
                   <path d="M4 4h16v16H4V4Zm0 0 8 9 8-9" strokeLinecap="round" strokeLinejoin="round" />
@@ -79,6 +75,10 @@ export default function Contact() {
                 {t("hero.location")}
               </div>
             </div>
+
+            <p className="mt-8 border-t border-white/5 pt-6 text-xs leading-relaxed text-silver-500">
+              {t("contact.card.formNote")}
+            </p>
           </GlassCard>
         </div>
 

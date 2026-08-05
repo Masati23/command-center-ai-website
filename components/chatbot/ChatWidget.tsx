@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { LogoMark } from "@/components/Logo";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const SESSION_KEY = "cc_chat_session_id";
 
@@ -26,9 +27,38 @@ const copy = {
   },
 };
 
+// The chatbot is instructed to include real section URLs (e.g.
+// https://www.commandcenterai.net/#ai-website-chatbot) when recommending a
+// service — this turns those URLs into actual clickable links instead of
+// inert text, satisfying "provide a clickable link... to the exact service
+// section." Splits on a simple URL pattern; everything else renders as-is.
+const URL_SPLIT_PATTERN = /(https?:\/\/[^\s]+)/g;
+const URL_TEST_PATTERN = /^https?:\/\//;
+
+function MessageContent({ text }: { text: string }) {
+  const parts = text.split(URL_SPLIT_PATTERN);
+  return (
+    <>
+      {parts.map((part, i) =>
+        URL_TEST_PATTERN.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            className="font-medium text-electric-300 underline underline-offset-2 hover:text-electric-200"
+          >
+            {part}
+          </a>
+        ) : (
+          <React.Fragment key={i}>{part}</React.Fragment>
+        )
+      )}
+    </>
+  );
+}
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const { language, setLanguage } = useLanguage(); // shared with the site-wide toggle in Navbar
+  const { language } = useLanguage(); // shared with the single site-wide language button
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,27 +109,16 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {open && (
-        <div className="mb-3 flex h-[28rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-electric-500/25 bg-navy-900/98 shadow-card">
-          <div className="flex items-center justify-between gap-2.5 bg-gradient-to-r from-electric-600/40 to-electric-500/10 px-4 py-3">
+        <div className="mb-3 flex h-[28rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-electric-500/40 bg-navy-800 shadow-card">
+          <div className="flex items-center justify-between gap-2.5 bg-navy-900 px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-electric-500/20">
                 <LogoMark className="h-4 w-4" />
               </div>
               <p className="text-xs font-semibold text-white">{copy[language].title}</p>
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setLanguage("en")}
-                className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${language === "en" ? "bg-white/15 text-white" : "text-silver-400"}`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage("es")}
-                className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${language === "es" ? "bg-white/15 text-white" : "text-silver-400"}`}
-              >
-                ES
-              </button>
+            <div className="flex items-center gap-1.5">
+              <LanguageToggle className="!px-2 !py-1 !text-[10px]" />
               <button onClick={() => setOpen(false)} className="ml-1 text-silver-400 hover:text-white" aria-label="Close chat">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -108,8 +127,8 @@ export default function ChatWidget() {
             </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
-            <div className="max-w-[85%] rounded-xl rounded-tl-sm bg-white/[0.06] px-3 py-2 text-[12px] text-silver-200">
+          <div ref={scrollRef} className="flex-1 space-y-2.5 overflow-y-auto bg-navy-800 px-4 py-4">
+            <div className="max-w-[85%] rounded-xl rounded-tl-sm bg-navy-700 px-3 py-2 text-[12px] text-silver-200">
               {copy[language].greeting}
             </div>
             {messages.map((m, i) => (
@@ -117,11 +136,11 @@ export default function ChatWidget() {
                 key={i}
                 className={`max-w-[85%] rounded-xl px-3 py-2 text-[12px] ${
                   m.role === "user"
-                    ? "ml-auto rounded-tr-sm bg-electric-600/80 text-white"
-                    : "rounded-tl-sm bg-white/[0.06] text-silver-200"
+                    ? "ml-auto rounded-tr-sm bg-electric-600 text-white"
+                    : "rounded-tl-sm bg-navy-700 text-silver-200"
                 }`}
               >
-                {m.content}
+                <MessageContent text={m.content} />
               </div>
             ))}
             {loading && (
@@ -133,12 +152,12 @@ export default function ChatWidget() {
             )}
           </div>
 
-          <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-white/5 px-3 py-2.5">
+          <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-white/10 bg-navy-900 px-3 py-2.5">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={copy[language].placeholder}
-              className="flex-1 rounded-full bg-white/[0.05] px-3 py-2 text-[12px] text-white outline-none placeholder-silver-500"
+              className="flex-1 rounded-full border border-white/10 bg-navy-700 px-3 py-2 text-[12px] text-white outline-none placeholder-silver-400"
             />
             <button
               type="submit"

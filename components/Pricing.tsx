@@ -34,7 +34,7 @@ const packages: Package[] = [
   {
     nameKey: "pricing.business.name",
     tagKey: "pricing.business.tag",
-    price: "Starting at $2,099",
+    price: "Starting at $2,999",
     descriptionKey: "pricing.business.description",
     featureKeys: ["pkgFeature.everythingGrowth", "pkgFeature.execDashboard", "pkgFeature.fullWorkflow", "pkgFeature.analyticsReports"],
   },

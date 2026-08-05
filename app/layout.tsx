@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "business AI systems Houston",
     "AI employee automation",
   ],
-  authors: [{ name: "Alfred Joe Acosta", url: siteUrl }],
+  authors: [{ name: "Command Center AI", url: siteUrl }],
   creator: "Command Center AI",
   publisher: "Command Center AI",
   applicationName: "Command Center AI",
@@ -88,13 +88,7 @@ export default function RootLayout({
     name: "Command Center AI",
     image: `${siteUrl}/opengraph-image`,
     url: siteUrl,
-    telephone: "+1-832-744-1631",
     email: "commandcenterai.contact@gmail.com",
-    founder: {
-      "@type": "Person",
-      name: "Alfred Joe Acosta",
-      jobTitle: "Founder & Chief AI Systems Architect",
-    },
     address: {
       "@type": "PostalAddress",
       addressLocality: "Houston",
@@ -102,7 +96,7 @@ export default function RootLayout({
       addressCountry: "US",
     },
     description,
-    priceRange: "$599 - $2099",
+    priceRange: "$599 - $2999",
     areaServed: "US",
   };
 

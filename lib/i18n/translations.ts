@@ -102,6 +102,92 @@ export const translations = {
   "feature.reports": { en: "Reports", es: "Reportes" },
   "feature.businessInsights": { en: "Business insights", es: "Información estratégica del negocio" },
 
+  // --- Services section: 6 new services (Priority 5 expansion to 10) ---
+  "services.customerSupport.name": { en: "AI Customer Support System", es: "Sistema de IA de Atención al Cliente" },
+  "services.customerSupport.description": {
+    en: "Answers customer questions, organizes requests, and makes sure nothing falls through the cracks.",
+    es: "Responde preguntas de clientes, organiza solicitudes y se asegura de que nada se pase por alto.",
+  },
+  "services.voiceAgent.name": { en: "AI Voice Receptionist and Phone Agent", es: "Recepcionista y Agente Telefónico de IA" },
+  "services.voiceAgent.description": {
+    en: "Answers your business calls, books appointments, and covers you after hours.",
+    es: "Responde las llamadas de tu negocio, agenda citas y te cubre fuera de horario.",
+  },
+  "services.salesCrm.name": { en: "AI Sales and CRM Automation", es: "Automatización de Ventas y CRM con IA" },
+  "services.salesCrm.description": {
+    en: "Captures leads, keeps your pipeline current, and follows up so opportunities don't go cold.",
+    es: "Capta clientes potenciales, mantiene tu embudo actualizado y da seguimiento para que las oportunidades no se enfríen.",
+  },
+  "services.estimatesInvoicing.name": { en: "AI Estimates, Invoices and Payment Follow-Up", es: "Estimados, Facturas y Seguimiento de Pagos con IA" },
+  "services.estimatesInvoicing.description": {
+    en: "Creates estimates, sends invoices, and follows up on payments automatically.",
+    es: "Crea estimados, envía facturas y da seguimiento a los pagos automáticamente.",
+  },
+  "services.reputation.name": { en: "AI Reputation and Review Management", es: "Gestión de Reputación y Reseñas con IA" },
+  "services.reputation.description": {
+    en: "Requests reviews, watches your reputation, and flags unhappy customers early.",
+    es: "Solicita reseñas, vigila tu reputación y detecta a clientes insatisfechos a tiempo.",
+  },
+  "services.employeeKnowledge.name": { en: "AI Employee Knowledge and Training Assistant", es: "Asistente de Conocimiento y Capacitación de Empleados con IA" },
+  "services.employeeKnowledge.description": {
+    en: "Answers employee questions from your own procedures and supports onboarding.",
+    es: "Responde preguntas de empleados usando tus propios procedimientos y apoya la incorporación.",
+  },
+
+  "feature.answersSupportQuestions": { en: "Answers customer questions", es: "Responde preguntas de clientes" },
+  "feature.organizesRequests": { en: "Organizes support requests", es: "Organiza solicitudes de soporte" },
+  "feature.escalatesIssues": { en: "Escalates serious issues", es: "Escala problemas graves" },
+  "feature.tracksFaqs": { en: "Tracks frequently asked questions", es: "Rastrea preguntas frecuentes" },
+  "feature.identifiesGaps": { en: "Identifies missing answers", es: "Identifica respuestas faltantes" },
+
+  "feature.answersCalls": { en: "Answers business calls", es: "Responde llamadas del negocio" },
+  "feature.booksAppointmentsPhone": { en: "Books appointments", es: "Agenda citas" },
+  "feature.takesMessages": { en: "Takes messages", es: "Toma mensajes" },
+  "feature.qualifiesCallers": { en: "Qualifies callers", es: "Califica a quien llama" },
+  "feature.afterHoursCoverage": { en: "After-hours coverage", es: "Cobertura fuera de horario" },
+
+  "feature.capturesLeadsCrm": { en: "Captures leads", es: "Capta clientes potenciales" },
+  "feature.organizesCustomerInfo": { en: "Organizes customer information", es: "Organiza información de clientes" },
+  "feature.updatesPipeline": { en: "Updates sales pipelines", es: "Actualiza embudos de venta" },
+  "feature.sendsFollowUps": { en: "Sends follow-up messages", es: "Envía mensajes de seguimiento" },
+  "feature.tracksOpportunities": { en: "Tracks opportunities", es: "Rastrea oportunidades" },
+
+  "feature.createsEstimates": { en: "Creates or organizes estimates", es: "Crea u organiza estimados" },
+  "feature.sendsInvoices": { en: "Sends invoices", es: "Envía facturas" },
+  "feature.paymentReminders": { en: "Sends payment reminders", es: "Envía recordatorios de pago" },
+  "feature.tracksBalances": { en: "Tracks unpaid balances", es: "Rastrea saldos pendientes" },
+  "feature.overdueAlerts": { en: "Notifies you about overdue payments", es: "Te notifica sobre pagos vencidos" },
+
+  "feature.requestsReviews": { en: "Requests customer reviews", es: "Solicita reseñas de clientes" },
+  "feature.monitorsFeedback": { en: "Monitors customer feedback", es: "Monitorea comentarios de clientes" },
+  "feature.draftsResponses": { en: "Drafts professional responses", es: "Redacta respuestas profesionales" },
+  "feature.alertsUnhappy": { en: "Alerts you about unhappy customers", es: "Te alerta sobre clientes insatisfechos" },
+  "feature.organizesReputation": { en: "Organizes reputation activity", es: "Organiza la actividad de reputación" },
+
+  "feature.answersEmployeeQuestions": { en: "Answers employee questions", es: "Responde preguntas de empleados" },
+  "feature.searchesProcedures": { en: "Searches company procedures", es: "Busca en procedimientos de la empresa" },
+  "feature.explainsPolicies": { en: "Explains policies", es: "Explica políticas" },
+  "feature.supportsOnboarding": { en: "Supports employee onboarding", es: "Apoya la incorporación de empleados" },
+  "feature.organizesTraining": { en: "Organizes training information", es: "Organiza información de capacitación" },
+
+  "services.monthlySupportFrom": { en: "Monthly support from", es: "Soporte mensual desde" },
+  "services.consultOnlyNote": {
+    en: "This service is available by consultation only — pricing is confirmed for your specific setup before anything is built.",
+    es: "Este servicio está disponible solo por consulta — el precio se confirma para tu configuración específica antes de construir nada.",
+  },
+  "services.voiceUsageDisclaimer": {
+    en: "Telephone, transcription, and AI usage charges may be billed separately from the setup and monthly support price.",
+    es: "Los cargos de teléfono, transcripción y uso de IA pueden facturarse por separado del precio de configuración y soporte mensual.",
+  },
+  "services.crmSubscriptionDisclaimer": {
+    en: "Paid CRM subscriptions and third-party software costs are not automatically included.",
+    es: "Las suscripciones de CRM de pago y los costos de software de terceros no están incluidos automáticamente.",
+  },
+  "services.employeeUsageDisclaimer": {
+    en: "Ongoing AI or API usage may be limited by plan or billed separately.",
+    es: "El uso continuo de IA o API puede estar limitado por el plan o facturarse por separado.",
+  },
+
   // --- Pricing section ---
   "pricing.eyebrow": { en: "Pricing", es: "Precios" },
   "pricing.title": { en: "Simple packages. Real results.", es: "Paquetes simples. Resultados reales." },
@@ -266,9 +352,19 @@ export const translations = {
     es: "Cada sistema que construimos tiene que ganarse su lugar en tu negocio. Eso significa que debe funcionar de forma silenciosa, confiable, y hacer una diferencia obvia — no solo verse impresionante en una demostración.",
   },
   "about.stat.coverage": { en: "AI Coverage", es: "Cobertura de IA" },
-  "about.stat.coreSystems": { en: "Core AI Systems", es: "Sistemas de IA Principales" },
+  "about.stat.coreSystems": { en: "Business AI Solutions", es: "Soluciones de IA para Empresas" },
   "about.stat.customConfigured": { en: "Custom Configured", es: "Configuración a Medida" },
   "about.founderTitle": { en: "Founder & Chief AI Systems Architect", es: "Fundador y Arquitecto Principal de Sistemas de IA" },
+  "about.standard.heading": { en: "THE COMMAND CENTER AI STANDARD", es: "EL ESTÁNDAR DE COMMAND CENTER AI" },
+
+  // --- Public business contact card (Contact section) — deliberately no
+  // personal name, title, avatar, or personal phone number; see About.tsx
+  // for the matching company-philosophy card treatment. ---
+  "contact.card.company": { en: "Command Center AI", es: "Command Center AI" },
+  "contact.card.formNote": {
+    en: "Prefer to talk it through first? Use the free consultation form to your right.",
+    es: "¿Prefieres hablarlo primero? Usa el formulario de consulta gratuita a tu derecha.",
+  },
 
   // --- FAQ ---
   "faq.eyebrow": { en: "FAQ", es: "Preguntas Frecuentes" },

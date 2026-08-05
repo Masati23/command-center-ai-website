@@ -7,7 +7,7 @@ import type { TranslationKey } from "@/lib/i18n/translations";
 
 const stats: { value: string; labelKey: TranslationKey }[] = [
   { value: "24/7", labelKey: "about.stat.coverage" },
-  { value: "4", labelKey: "about.stat.coreSystems" },
+  { value: "10", labelKey: "about.stat.coreSystems" },
   { value: "100%", labelKey: "about.stat.customConfigured" },
 ];
 
@@ -34,17 +34,18 @@ export default function About() {
         </div>
 
         <GlassCard className="p-8 sm:p-10">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-electric-500/15 text-lg font-semibold text-electric-400">
-              AA
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-electric-500/15">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5eb3ff" strokeWidth="2">
+                <path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4Z" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-            <div>
-              <p className="text-lg font-semibold text-white">Alfred Joe Acosta</p>
-              <p className="text-sm text-electric-400">{t("about.founderTitle")}</p>
-            </div>
+            <p className="text-sm font-semibold tracking-wide text-white">{t("about.standard.heading")}</p>
           </div>
-          <p className="mt-6 text-sm leading-relaxed text-silver-400">&ldquo;{t("about.quote")}&rdquo;</p>
+          <p className="mt-6 text-base leading-relaxed text-silver-300">&ldquo;{t("about.quote")}&rdquo;</p>
           <div className="mt-6 border-t border-white/5 pt-6 text-sm text-silver-400">
+            <p className="font-medium text-silver-300">Command Center AI</p>
             <p>{t("hero.location")}</p>
             <a href="mailto:commandcenterai.contact@gmail.com" className="text-electric-400 hover:underline">
               commandcenterai.contact@gmail.com

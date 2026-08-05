@@ -38,11 +38,6 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white">{t("footer.contact")}</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-silver-400">
-              <li>Alfred Joe Acosta</li>
-              <li>{t("about.founderTitle")}</li>
-              <li>
-                <a href="tel:+18327441631" className="hover:text-white">832-744-1631</a>
-              </li>
               <li>
                 <a href="mailto:commandcenterai.contact@gmail.com" className="hover:text-white">
                   commandcenterai.contact@gmail.com
