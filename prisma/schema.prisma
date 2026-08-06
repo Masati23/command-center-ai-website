@@ -432,6 +432,10 @@ model ChatMessage {
   // confident answer — surfaces in the dashboard's "Unanswered Questions"
   // view so gaps in the knowledge base are visible.
   flaggedUnanswered Boolean @default(false)
+  // Deterministic, model-independent match from lib/service-matcher.ts —
+  // same architecture as the Academy project's recommendedCourseSlug.
+  // Only set on user messages; null when no confident single match.
+  recommendedServiceSlug String?
   createdAt      DateTime         @default(now())
 
   @@map("chat_messages")

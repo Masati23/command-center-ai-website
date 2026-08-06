@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db";
 import { buildChatSystemPrompt } from "@/lib/chatbot-knowledge";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
+import { redactSensitiveInfo } from "@/lib/chat-redaction";
+import { decideRecommendedService } from "@/lib/service-matcher";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   sessionId: z.string(),
@@ -25,18 +27,52 @@ const SAFE_UNAVAILABLE_MESSAGE = {
 
 // -----------------------------------------------------------------------
 // CREDENTIAL NEEDED TO ACTIVATE THIS ROUTE:
-//   ANTHROPIC_API_KEY
-//   Get it from: https://console.anthropic.com/settings/keys
+//   OPENAI_API_KEY
+//   Get it from: https://platform.openai.com/api-keys
 //   Vercel project: command-center-ai-website
 //   Environments: Production, Preview, and Development
-// Without it, this route responds with a generic customer-safe message
-// (never the technical reason) rather than crashing or pretending to
-// work — same graceful-degradation pattern used everywhere else in this
-// project (Resend, Stripe), now with the technical detail kept server-side
-// only instead of reaching the response body.
+//
+// Uses OpenAI (gpt-4o-mini) via a plain fetch to OpenAI's REST API — no SDK
+// dependency — matching the proven, already-working architecture from the
+// Command Center AI Academy project (cc-stripe/lib/chat.ts). This project
+// previously used Anthropic's API; switched to reuse the same working setup
+// rather than maintain two different chatbot architectures.
+//
+// Without the key, this route responds with a generic customer-safe message
+// (never the technical reason) rather than crashing or pretending to work —
+// same graceful-degradation pattern used everywhere else in this project
+// (Resend, Stripe).
 // -----------------------------------------------------------------------
-const anthropicConfigured = !!process.env.ANTHROPIC_API_KEY;
-const anthropic = anthropicConfigured ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
+const openaiConfigured = !!process.env.OPENAI_API_KEY;
+
+async function getChatReply(
+  systemPrompt: string,
+  history: { role: "user" | "assistant"; content: string }[],
+  message: string
+): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [{ role: "system", content: systemPrompt }, ...history.slice(-16), { role: "user", content: message }],
+      max_tokens: 500,
+      temperature: 0.4,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("OpenAI error:", res.status, errText);
+    throw new Error("Chat request failed");
+  }
+
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content?.trim() || "";
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -46,10 +82,10 @@ export async function POST(req: NextRequest) {
   }
   const { sessionId, message, language } = parsed.data;
 
-  if (!anthropicConfigured || !anthropic) {
+  if (!openaiConfigured) {
     // The one place this exact technical detail is allowed to exist —
     // server-side console output only.
-    console.error("Chatbot request rejected: ANTHROPIC_API_KEY is not set in this environment.");
+    console.error("Chatbot request rejected: OPENAI_API_KEY is not set in this environment.");
     return NextResponse.json({ error: SAFE_UNAVAILABLE_MESSAGE[language] }, { status: 503 });
   }
 
@@ -64,8 +100,19 @@ export async function POST(req: NextRequest) {
     include: { messages: { orderBy: { createdAt: "asc" }, take: 20 } },
   });
 
+  // Deterministic, model-independent match on the visitor's own message —
+  // same architecture as the Academy project's course-matcher.ts. Computed
+  // from the raw message (redaction below is for storage only, so it
+  // doesn't affect matching or what the model sees).
+  const recommendedServiceSlug = decideRecommendedService(message);
+
   await db.chatMessage.create({
-    data: { conversationId: conversation.id, role: "user", content: message },
+    data: {
+      conversationId: conversation.id,
+      role: "user",
+      content: redactSensitiveInfo(message),
+      recommendedServiceSlug,
+    },
   });
 
   const products = await db.product.findMany({ where: { status: "ACTIVE" } });
@@ -77,21 +124,19 @@ export async function POST(req: NextRequest) {
   }));
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-5",
-      max_tokens: 500,
-      system: systemPrompt,
-      messages: [...history, { role: "user", content: message }],
-    });
-
-    const replyText = response.content.find((b) => b.type === "text")?.text ?? "";
+    const replyText = await getChatReply(systemPrompt, history, message);
 
     // Heuristic, not a guarantee — surfaces likely knowledge gaps in the
     // dashboard for a human to review, doesn't block the reply.
     const flaggedUnanswered = /not sure|don't have|no tengo información|not certain/i.test(replyText);
 
     await db.chatMessage.create({
-      data: { conversationId: conversation.id, role: "assistant", content: replyText, flaggedUnanswered },
+      data: {
+        conversationId: conversation.id,
+        role: "assistant",
+        content: redactSensitiveInfo(replyText),
+        flaggedUnanswered,
+      },
     });
 
     await db.eventLog.create({
@@ -99,13 +144,13 @@ export async function POST(req: NextRequest) {
         type: "chatbot_message",
         refId: conversation.id,
         email: conversation.customerEmail ?? undefined,
-        metadata: { flaggedUnanswered },
+        metadata: { flaggedUnanswered, recommendedServiceSlug },
       },
     });
 
     return NextResponse.json({ reply: replyText, conversationId: conversation.id });
   } catch (err) {
-    // Real cause (Anthropic API error, network failure, etc.) — server logs
+    // Real cause (OpenAI API error, network failure, etc.) — server logs
     // only, per the same rule as the missing-key case above.
     console.error("Chatbot API call failed:", err);
     return NextResponse.json({ error: SAFE_UNAVAILABLE_MESSAGE[language] }, { status: 500 });

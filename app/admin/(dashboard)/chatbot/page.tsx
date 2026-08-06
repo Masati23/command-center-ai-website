@@ -110,7 +110,7 @@ export default async function AdminChatbotPage() {
         ))}
         {conversations.length === 0 && (
           <p className="py-8 text-center text-sm text-silver-500">
-            No conversations yet — the chatbot needs ANTHROPIC_API_KEY set to go live.
+            No conversations yet — the chatbot needs OPENAI_API_KEY set to go live.
           </p>
         )}
       </div>

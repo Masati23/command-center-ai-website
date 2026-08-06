@@ -56,7 +56,7 @@ export default async function AdminSystemHealthPage() {
     { name: "STRIPE_WEBHOOK_SECRET", present: !!process.env.STRIPE_WEBHOOK_SECRET, required: true },
     { name: "NEXT_PUBLIC_APP_URL", present: !!process.env.NEXT_PUBLIC_APP_URL, required: true },
     { name: "RESEND_API_KEY", present: !!process.env.RESEND_API_KEY, required: true },
-    { name: "ANTHROPIC_API_KEY", present: !!process.env.ANTHROPIC_API_KEY, required: true },
+    { name: "OPENAI_API_KEY", present: !!process.env.OPENAI_API_KEY, required: true },
     { name: "AUTH_SECRET", present: !!process.env.AUTH_SECRET, required: true },
     { name: "CONTACT_NOTIFY_EMAIL", present: !!process.env.CONTACT_NOTIFY_EMAIL, required: false },
     { name: "CRM_WEBHOOK_URL", present: !!process.env.CRM_WEBHOOK_URL, required: false },
@@ -95,11 +95,11 @@ export default async function AdminSystemHealthPage() {
           />
           <Row
             label="Chatbot"
-            status={process.env.ANTHROPIC_API_KEY ? "healthy" : "error"}
+            status={process.env.OPENAI_API_KEY ? "healthy" : "error"}
             detail={
-              process.env.ANTHROPIC_API_KEY
+              process.env.OPENAI_API_KEY
                 ? `Configured. ${recentChatMessages} message(s) in the last 24 hours.`
-                : "ANTHROPIC_API_KEY is missing — the chat widget returns a clear 'not configured' message instead of responding."
+                : "OPENAI_API_KEY is missing — the chat widget returns a clear 'not configured' message instead of responding."
             }
           />
         </div>

@@ -18,12 +18,16 @@ const copy = {
     placeholder: "Type a message…",
     unavailable: "Our AI assistant is temporarily unavailable. Please try again shortly or request a free consultation.",
     title: "Command Center AI Assistant",
+    // Adapted from the Command Center AI Academy chatbot's privacy notice
+    // (same placement: a small line above the input box).
+    privacyNotice: "Please don't share passwords, payment card information, Social Security numbers, or other sensitive information. Conversations may be reviewed to improve our support and website.",
   },
   es: {
     greeting: "¡Hola! Puedo responder preguntas sobre nuestros sistemas de IA, precios y cuál se adapta a tu negocio. ¿Qué te gustaría automatizar?",
     placeholder: "Escribe un mensaje…",
     unavailable: "Nuestro asistente de IA no está disponible temporalmente. Inténtalo de nuevo en un momento o solicita una consulta gratuita.",
     title: "Asistente de Command Center AI",
+    privacyNotice: "No compartas contraseñas, información de tarjetas de pago, números de seguro social u otra información sensible. Las conversaciones pueden revisarse para mejorar nuestro soporte y sitio web.",
   },
 };
 
@@ -156,7 +160,11 @@ export default function ChatWidget() {
             )}
           </div>
 
-          <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-white/10 bg-navy-900 px-3 py-2.5">
+          <p className="border-t border-white/10 bg-navy-900 px-3 pt-2 text-[10px] leading-tight text-silver-500">
+            {copy[language].privacyNotice}
+          </p>
+
+          <form onSubmit={sendMessage} className="flex items-center gap-2 bg-navy-900 px-3 py-2.5">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
