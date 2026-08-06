@@ -10,28 +10,25 @@ export default function Hero() {
   const { t } = useLanguage();
 
   return (
-    <section id="home" className="relative overflow-hidden pt-40 pb-20 sm:pt-48 sm:pb-28">
+    <section id="home" className="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-28">
       <div className="pointer-events-none absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
 
       {/* Centered brand logo — normal document flow (not fixed/sticky), so
           it scrolls away with the rest of the page like any other content.
-          Sized as a share of the max-w-7xl container width, not the raw
-          viewport, so "3/8 to nearly 1/2 of the page" holds regardless of
-          how wide the visitor's screen is. */}
-      <div className="relative mx-auto mb-10 flex max-w-7xl justify-center px-6 sm:mb-14 lg:px-8">
+          The source file was trimmed to its actual visible artwork bounds
+          (the original canvas had a large amount of essentially-invisible
+          transparent padding around the logo, which is why it still looked
+          small even at a big CSS width) — width: clamp(280px, 80vw, 680px)
+          gives a fluid ~280-380px logo on phones scaling up to a 680px cap
+          on desktop, per spec. */}
+      <div className="relative mx-auto mb-6 flex max-w-7xl justify-center px-6 sm:mb-8 lg:px-8">
         <Image
           src="/logo-hero.png"
           alt="Command Center AI"
-          width={1536}
-          height={1024}
+          width={1136}
+          height={369}
           priority
-          // This approved file is a taller, more square lockup (1.5:1) than
-          // the wordmark-only banner used before (3.94:1) — sizing by width
-          // percentage alone at the old targets would make it roughly 2.6x
-          // taller than intended and crowd the header above it, so this is
-          // sized to a comparable rendered height instead, still scaling
-          // responsively and never stretched (object-contain, no cropping).
-          className="h-auto w-[46%] max-w-[190px] object-contain sm:w-[36%] sm:max-w-[230px] md:max-w-[260px] lg:max-w-[300px]"
+          className="h-auto w-[clamp(280px,80vw,680px)] object-contain"
         />
       </div>
 
