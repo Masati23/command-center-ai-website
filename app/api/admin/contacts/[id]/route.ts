@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
@@ -44,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   // Powers the Customer Timeline's "Status changes" / "Follow-up notes"
   // entries and the Executive Dashboard's Recent Activity feed — only
   // written for the field(s) that actually changed, not on every save.
-  const events: { type: string; metadata: Record<string, unknown> }[] = [];
+  const events: { type: string; metadata: Prisma.InputJsonValue }[] = [];
   if (parsed.data.status && parsed.data.status !== existing.status) {
     events.push({ type: "status_changed", metadata: { from: existing.status, to: parsed.data.status } });
   }
