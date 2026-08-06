@@ -38,10 +38,10 @@ export default function Navbar() {
           <Image
             src="/logo-header.png"
             alt="Command Center AI"
-            width={1356}
-            height={326}
+            width={1536}
+            height={1024}
             priority
-            className="h-8 w-auto sm:h-9"
+            className="h-10 w-auto object-contain sm:h-11"
           />
         </Link>
 

@@ -22,10 +22,16 @@ export default function Hero() {
         <Image
           src="/logo-hero.png"
           alt="Command Center AI"
-          width={1729}
-          height={439}
+          width={1536}
+          height={1024}
           priority
-          className="h-auto w-[78%] max-w-[300px] sm:w-[65%] sm:max-w-[420px] md:w-[55%] md:max-w-[500px] lg:w-[42%] lg:max-w-[560px]"
+          // This approved file is a taller, more square lockup (1.5:1) than
+          // the wordmark-only banner used before (3.94:1) — sizing by width
+          // percentage alone at the old targets would make it roughly 2.6x
+          // taller than intended and crowd the header above it, so this is
+          // sized to a comparable rendered height instead, still scaling
+          // responsively and never stretched (object-contain, no cropping).
+          className="h-auto w-[46%] max-w-[190px] object-contain sm:w-[36%] sm:max-w-[230px] md:max-w-[260px] lg:max-w-[300px]"
         />
       </div>
 
