@@ -550,6 +550,35 @@ export const translations = {
     es: "Tu pago fue cancelado y no se realizó ningún cargo. Puedes retomar donde lo dejaste en cualquier momento.",
   },
 
+  // --- Trust & Security section ---
+  "trust.eyebrow": { en: "Trust & Security", es: "Confianza y Seguridad" },
+  "trust.title": { en: "Purchase with confidence", es: "Compra con confianza" },
+  "trust.description": {
+    en: "Here's exactly how your payment and information are handled — no vague promises, just how it actually works.",
+    es: "Así es exactamente cómo se manejan tu pago e información — sin promesas vagas, solo cómo funciona realmente.",
+  },
+  "trust.payments.title": { en: "Secure Payments", es: "Pagos Seguros" },
+  "trust.payments.body": {
+    en: "All payments are processed securely through Stripe, a payment processor used by millions of businesses worldwide.",
+    es: "Todos los pagos se procesan de forma segura a través de Stripe, un procesador de pagos utilizado por millones de empresas en todo el mundo.",
+  },
+  "trust.checkout.title": { en: "Secure Checkout", es: "Pago Seguro" },
+  "trust.checkout.body": {
+    en: "Checkout happens on Stripe's own secure payment page. Your full card number and CVV are submitted directly to Stripe and are never received or stored on Command Center AI's servers.",
+    es: "El pago se realiza en la propia página de pago segura de Stripe. El número completo de tu tarjeta y el CVV se envían directamente a Stripe y nunca se reciben ni se almacenan en los servidores de Command Center AI.",
+  },
+  "trust.customerInfo.title": { en: "Customer Information", es: "Información del Cliente" },
+  "trust.customerInfo.body": {
+    en: "Information you voluntarily share through our contact, consultation, purchase, or onboarding forms is stored so our team can follow up and deliver your project — never sold, and never shared beyond what's needed to serve you.",
+    es: "La información que compartes voluntariamente a través de nuestros formularios de contacto, consulta, compra u onboarding se almacena para que nuestro equipo pueda dar seguimiento y entregar tu proyecto — nunca se vende, ni se comparte más allá de lo necesario para atenderte.",
+  },
+  "trust.support.title": { en: "Customer Support", es: "Atención al Cliente" },
+  "trust.support.body": {
+    en: "Questions before or after purchasing? Reach out any time through the contact form below or our chat assistant — a real person reviews every inquiry.",
+    es: "¿Preguntas antes o después de comprar? Contáctanos en cualquier momento a través del formulario de contacto o nuestro asistente de chat — una persona real revisa cada consulta.",
+  },
+  "trust.poweredByStripe": { en: "Secure checkout powered by Stripe", es: "Pago seguro impulsado por Stripe" },
+
   // --- Academy callout ---
   "academy.title": { en: "Prefer to build it yourself?", es: "¿Prefieres construirlo tú mismo?" },
   "academy.description": {

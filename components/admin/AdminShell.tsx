@@ -72,12 +72,22 @@ export default function AdminShell({
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white outline-none placeholder-silver-500 focus:border-electric-500/50"
             />
           </form>
-          <button
-            onClick={handleLogout}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-silver-400 hover:bg-white/5 hover:text-white"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-silver-400 hover:bg-white/5 hover:text-white"
+            >
+              View Storefront ↗
+            </a>
+            <button
+              onClick={handleLogout}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-silver-400 hover:bg-white/5 hover:text-white"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
