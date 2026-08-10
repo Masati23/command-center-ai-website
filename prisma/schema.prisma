@@ -476,3 +476,53 @@ model EventLog {
   @@index([email])
   @@index([refId])
 }
+
+// ---------------------------------------------------------------------------
+// Site traffic analytics — real visitors/page views/attribution, persisted
+// server-side. Previously this app relied entirely on Vercel Web Analytics
+// for this data, which never wrote to this database and can't power the
+// admin dashboard's own counters, UTM breakdowns, or a Recent Visitors list.
+// This is deliberately separate from EventLog: high write volume (one row
+// per page load), a distinct shape (attribution + presence, not a generic
+// business event), and its own indexes.
+// ---------------------------------------------------------------------------
+
+model Visitor {
+  id          String   @id @default(cuid())
+  visitorId   String   @unique // client-generated UUID, persisted via a long-lived cookie (cc_visitor_id) — not localStorage, so it's readable server-side and unaffected by app storage being cleared
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @updatedAt // bumped on every page view via update() — powers "live visitors"
+
+  // First-touch attribution — captured once, at creation, and never
+  // overwritten by later page views in the same session, so a visitor's
+  // original source survives them browsing to pages with no UTM params.
+  landingPage String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+  sourceBucket String  @default("direct") // "tiktok" | "youtube" | "facebook" | "instagram" | "google" | "direct" | "other" — computed once at creation by lib/tracking.ts, so dashboard grouping is a cheap indexed groupBy instead of re-parsing referrers on every query
+
+  device String @default("desktop") // "mobile" | "tablet" | "desktop" — coarse, from user-agent only
+
+  pageViews PageView[]
+
+  @@map("visitors")
+  @@index([firstSeenAt])
+  @@index([lastSeenAt])
+  @@index([sourceBucket])
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  visitorId String
+  visitor   Visitor  @relation(fields: [visitorId], references: [visitorId], onDelete: Cascade)
+  path      String
+  createdAt DateTime @default(now())
+
+  @@map("page_views")
+  @@index([createdAt])
+  @@index([visitorId])
+}

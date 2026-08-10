@@ -58,9 +58,14 @@ async function getStats() {
     activeChatSessions,
     chatByLanguage,
     unansweredCount,
-    referralGroups,
     paidItemsWithProduct,
     recentEvents,
+    totalVisitors,
+    uniqueVisitorsToday,
+    liveVisitors,
+    totalPageViews,
+    pageViewsToday,
+    sourceBucketGroups,
   ] = await Promise.all([
     db.assessment.count(),
     db.customer.count(),
@@ -80,12 +85,17 @@ async function getStats() {
     db.chatConversation.count({ where: { updatedAt: { gte: fiveMinutesAgo } } }),
     db.chatConversation.groupBy({ by: ["language"], _count: true }),
     db.chatMessage.count({ where: { flaggedUnanswered: true } }),
-    db.contactSubmission.groupBy({ by: ["referralSource"], _count: true, where: { referralSource: { not: null } } }),
     db.orderItem.findMany({
       where: { order: { status: { in: ["PAID", "PARTIALLY_PAID"] } } },
       include: { product: true },
     }),
     db.eventLog.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
+    db.visitor.count(),
+    db.visitor.count({ where: { lastSeenAt: { gte: startOfToday } } }),
+    db.visitor.count({ where: { lastSeenAt: { gte: fiveMinutesAgo } } }),
+    db.pageView.count(),
+    db.pageView.count({ where: { createdAt: { gte: startOfToday } } }),
+    db.visitor.groupBy({ by: ["sourceBucket"], _count: true }),
   ]);
 
   const totalRevenueCents = paidOrders.reduce((sum, o) => sum + o.amountDue, 0);
@@ -100,18 +110,23 @@ async function getStats() {
   }
   const topProduct = [...revenueByProduct.entries()].sort((a, b) => b[1] - a[1])[0];
 
-  const topReferral = [...referralGroups].sort((a, b) => (b._count as number) - (a._count as number))[0];
-  // referralSource is stored from the request's Referer header — visitor
-  // input, not guaranteed to be a well-formed absolute URL, so this must
-  // not throw and take the whole dashboard down over one malformed value.
-  let topTrafficSource = "Direct / Unknown";
-  if (topReferral?.referralSource) {
-    try {
-      topTrafficSource = new URL(topReferral.referralSource).hostname || topReferral.referralSource;
-    } catch {
-      topTrafficSource = topReferral.referralSource;
-    }
-  }
+  // Real, site-wide traffic source data (Visitor.sourceBucket, computed at
+  // first touch from UTM params / referrer — see lib/tracking.ts). Replaces
+  // the old approximation that only looked at contact-form referrer
+  // headers, which meant a visitor who never submitted a form never
+  // contributed to this number at all.
+  const sourceBucketCounts = Object.fromEntries(sourceBucketGroups.map((g) => [g.sourceBucket, g._count as number]));
+  const topSourceBucket = [...sourceBucketGroups].sort((a, b) => (b._count as number) - (a._count as number))[0];
+  const SOURCE_LABELS: Record<string, string> = {
+    tiktok: "TikTok",
+    youtube: "YouTube",
+    facebook: "Facebook",
+    instagram: "Instagram",
+    google: "Google / Search",
+    direct: "Direct",
+    other: "Other",
+  };
+  const topTrafficSource = topSourceBucket ? SOURCE_LABELS[topSourceBucket.sourceBucket] ?? topSourceBucket.sourceBucket : "No visitors yet";
 
   const enChats = chatByLanguage.find((g) => g.language === "en")?._count ?? 0;
   const esChats = chatByLanguage.find((g) => g.language === "es")?._count ?? 0;
@@ -142,6 +157,12 @@ async function getStats() {
     topProduct,
     topTrafficSource,
     recentEvents,
+    totalVisitors,
+    uniqueVisitorsToday,
+    liveVisitors,
+    totalPageViews,
+    pageViewsToday,
+    sourceBucketCounts,
   };
 }
 
@@ -166,8 +187,12 @@ export default async function AdminOverviewPage() {
     { id: "conversionRate", label: "Conversion Rate", value: `${s.checkoutConversionPct}%`, tooltip: "Completed purchases ÷ checkout sessions opened." },
     { id: "avgOrderValue", label: "Average Order Value", value: formatCents(s.avgOrderValueCents), tooltip: "Total revenue ÷ number of paid orders." },
     { id: "topService", label: "Top Performing Service", value: s.topProduct ? s.topProduct[0] : "—", href: "/admin/service-interest", tooltip: "The service with the most revenue from completed purchases." },
-    { id: "topTraffic", label: "Top Traffic Source", value: s.topTrafficSource, tooltip: "Most common referring page across contact form submissions — a partial signal, not full attribution. Enable Vercel Web Analytics for complete referral/UTM data." },
-    { id: "liveVisitors", label: "Live Visitor Count", value: s.activeChatSessions, tooltip: "Approximation, not true site-wide presence: chat conversations active in the last 5 minutes. Vercel Web Analytics can show real-time visitor count for the whole site." },
+    { id: "topTraffic", label: "Top Traffic Source", value: s.topTrafficSource, href: "/admin/traffic", tooltip: "Most common source bucket across all visitors, first-touch attributed from UTM params or referrer at their first page view." },
+    { id: "liveVisitors", label: "Live Visitors", value: s.liveVisitors, href: "/admin/traffic", tooltip: "Distinct visitors with a page view in the last 5 minutes, site-wide — excludes logged-in admin sessions." },
+    { id: "uniqueVisitorsToday", label: "Unique Visitors Today", value: s.uniqueVisitorsToday, href: "/admin/traffic", tooltip: "Distinct visitors seen (page view) since midnight today — excludes admin sessions." },
+    { id: "totalVisitors", label: "Total Visitors (All Time)", value: s.totalVisitors, href: "/admin/traffic", tooltip: "Every distinct visitor ever recorded, all time." },
+    { id: "pageViewsToday", label: "Page Views Today", value: s.pageViewsToday, href: "/admin/traffic", tooltip: "Every page load recorded since midnight today, across all visitors." },
+    { id: "totalPageViews", label: "Total Page Views", value: s.totalPageViews, href: "/admin/traffic", tooltip: "Every page load ever recorded, all time." },
   ];
 
   return (
@@ -196,13 +221,26 @@ export default async function AdminOverviewPage() {
         </div>
       </GlassCard>
 
-      <GlassCard className="mt-6 border-electric-500/20 p-5">
-        <p className="text-sm font-medium text-white">Visitor traffic (visitors, page views, device, geo)</p>
-        <p className="mt-1.5 text-xs leading-relaxed text-silver-400">
-          Tracked by Vercel Web Analytics — enable it once in your Vercel project (Analytics tab), no code changes
-          needed. Top Traffic Source and Live Visitor Count above are honest approximations from this app&rsquo;s
-          own data until then.
-        </p>
+      <p className="mt-8 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-silver-500">
+        Traffic Sources
+        <Link href="/admin/traffic" className="normal-case text-electric-400 hover:underline">
+          View all visitors →
+        </Link>
+      </p>
+      <GlassCard className="mt-3 p-0">
+        <div className="divide-y divide-white/5">
+          {(["tiktok", "youtube", "facebook", "instagram", "google", "direct", "other"] as const).map((bucket) => (
+            <div key={bucket} className="flex items-center justify-between gap-4 px-5 py-3 text-sm">
+              <span className="text-silver-300 capitalize">{bucket === "google" ? "Google / Search" : bucket}</span>
+              <span className="font-semibold text-white">{s.sourceBucketCounts[bucket] ?? 0}</span>
+            </div>
+          ))}
+          {s.totalVisitors === 0 && (
+            <p className="px-5 py-8 text-center text-sm text-silver-500">
+              No visitors recorded yet. This fills in as soon as a real, non-admin visit hits the site.
+            </p>
+          )}
+        </div>
       </GlassCard>
 
       <p className="mt-10 text-xs font-semibold uppercase tracking-wide text-silver-500">Chat</p>

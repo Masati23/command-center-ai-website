@@ -34,6 +34,7 @@ export default function AdminShell({
 
   const navLinks = [
     { label: "Overview", href: "/admin" },
+    { label: "Traffic & Visitors", href: "/admin/traffic" },
     { label: "Leads", href: "/admin/leads" },
     { label: "Contact Submissions", href: "/admin/contacts", badge: badges?.newLeads },
     { label: "Consultation Requests", href: "/admin/consultations", badge: badges?.newLeads },
