@@ -37,7 +37,7 @@ export default async function AdminServiceInterestPage() {
     <div>
       <h1 className="text-2xl font-semibold text-white">Service Interest</h1>
       <p className="mt-1.5 text-sm text-silver-500">
-        How each of the 10 services performs — clicks, checkouts, purchases, and revenue.
+        How each of the {products.length} services performs — clicks, checkouts, purchases, and revenue.
       </p>
 
       <GlassCard className="mt-6 overflow-x-auto p-0">

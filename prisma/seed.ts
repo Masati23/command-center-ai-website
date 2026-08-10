@@ -157,6 +157,45 @@ const products: SeedProduct[] = [
     tags: ["internal-support", "onboarding", "knowledge-base"],
     sortOrder: 10,
   },
+  {
+    slug: "ai-agents-for-business",
+    name: "AI Agents for Business",
+    description:
+      "A real custom AI agent built to work inside your business — not a simple chatbot. Lead qualification, customer support, workflow automation, tool/CRM integrations, and automated follow-up, with human approval steps where needed.",
+    category: "CORE",
+    basePrice: 399900,
+    monthlySupport: 39900,
+    buildTimeDays: 21,
+    features: ["Lead qualification", "Workflow automation", "Tool and API integrations", "CRM integration", "Human approval steps where needed", "Automated follow-up"],
+    tags: ["ai-agent", "workflow-automation", "custom-integration"],
+    sortOrder: 11,
+  },
+  {
+    slug: "ai-security-hardening",
+    name: "AI & Business Data Security Hardening",
+    description:
+      "A defensive security review and hardening pass on your AI systems and business data — credentials, access controls, secrets, integrations, and backup planning, reviewed and tightened. Not a guarantee of security, professional penetration testing, or a regulatory/compliance certification.",
+    category: "CORE",
+    basePrice: 349900,
+    monthlySupport: 29900,
+    buildTimeDays: 14,
+    features: ["AI and business system security review", "Credential and API key protection", "Access control review", "Secrets and environment configuration", "Prompt-injection risk mitigation", "Backup and recovery planning"],
+    tags: ["security", "hardening", "data-protection"],
+    sortOrder: 12,
+  },
+  {
+    slug: "ai-data-analytics-business-intelligence",
+    name: "AI Data Analytics & Business Intelligence",
+    description:
+      "An owner-level dashboard that connects your business data, defines the KPIs that matter, and turns visitor, sales, and marketing activity into clear, automated reporting and AI-assisted insight.",
+    category: "CORE",
+    basePrice: 499900,
+    monthlySupport: 39900,
+    buildTimeDays: 21,
+    features: ["Connects your business data sources", "Custom owner dashboard", "Defines the KPIs that matter to you", "Sales and revenue analytics", "Automated reporting", "AI-assisted business insights"],
+    tags: ["analytics", "business-intelligence", "dashboard"],
+    sortOrder: 13,
+  },
   // ---- Modules ----
   {
     slug: "ai-voice-receptionist",

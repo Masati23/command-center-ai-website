@@ -134,6 +134,22 @@ export const translations = {
     es: "Responde preguntas de empleados usando tus propios procedimientos y apoya la incorporación.",
   },
 
+  "services.aiAgents.name": { en: "AI Agents for Business", es: "Agentes de IA para tu Negocio" },
+  "services.aiAgents.description": {
+    en: "A real custom AI agent built to work inside your business — not a simple chatbot. It can qualify leads, support customers, run multi-step workflows, connect to your tools and CRM, and follow up automatically, with human approval steps where you want them.",
+    es: "Un agente de IA personalizado y real, construido para trabajar dentro de tu negocio — no un simple chatbot. Puede calificar clientes potenciales, apoyar a clientes, ejecutar flujos de trabajo de varios pasos, conectarse a tus herramientas y CRM, y hacer seguimiento automáticamente, con pasos de aprobación humana donde tú lo decidas.",
+  },
+  "services.securityHardening.name": { en: "AI & Business Data Security Hardening", es: "Fortalecimiento de Seguridad de Datos de IA y Negocio" },
+  "services.securityHardening.description": {
+    en: "A defensive security review and hardening pass on your AI systems and business data — credentials, access controls, secrets, integrations, and backup planning, reviewed and tightened.",
+    es: "Una revisión defensiva de seguridad y fortalecimiento de tus sistemas de IA y datos de negocio — credenciales, controles de acceso, secretos, integraciones y planificación de respaldo, revisados y reforzados.",
+  },
+  "services.dataAnalytics.name": { en: "AI Data Analytics & Business Intelligence", es: "Análisis de Datos e Inteligencia de Negocio con IA" },
+  "services.dataAnalytics.description": {
+    en: "An owner-level dashboard that connects your business data, defines the KPIs that matter, and turns visitor, sales, and marketing activity into clear, automated reporting and AI-assisted insight.",
+    es: "Un panel a nivel de propietario que conecta los datos de tu negocio, define los KPIs importantes, y convierte la actividad de visitantes, ventas y marketing en reportes claros y automatizados con información asistida por IA.",
+  },
+
   "feature.answersSupportQuestions": { en: "Answers customer questions", es: "Responde preguntas de clientes" },
   "feature.organizesRequests": { en: "Organizes support requests", es: "Organiza solicitudes de soporte" },
   "feature.escalatesIssues": { en: "Escalates serious issues", es: "Escala problemas graves" },
@@ -170,6 +186,22 @@ export const translations = {
   "feature.supportsOnboarding": { en: "Supports employee onboarding", es: "Apoya la incorporación de empleados" },
   "feature.organizesTraining": { en: "Organizes training information", es: "Organiza información de capacitación" },
 
+  "feature.toolApiIntegrations": { en: "Tool and API integrations", es: "Integraciones de herramientas y API" },
+  "feature.crmIntegration": { en: "CRM integration", es: "Integración con CRM" },
+  "feature.humanApprovalSteps": { en: "Human approval steps where needed", es: "Pasos de aprobación humana donde se necesiten" },
+  "feature.securityReview": { en: "AI and business system security review", es: "Revisión de seguridad de sistemas de IA y negocio" },
+  "feature.credentialProtection": { en: "Credential and API key protection", es: "Protección de credenciales y claves API" },
+  "feature.accessControlReview": { en: "Access control review", es: "Revisión de control de acceso" },
+  "feature.secretsConfiguration": { en: "Secrets and environment configuration", es: "Configuración de secretos y entorno" },
+  "feature.promptInjectionMitigation": { en: "Prompt-injection risk mitigation", es: "Mitigación de riesgo de inyección de prompts" },
+  "feature.backupRecoveryPlanning": { en: "Backup and recovery planning", es: "Planificación de respaldo y recuperación" },
+  "feature.connectsDataSources": { en: "Connects your business data sources", es: "Conecta las fuentes de datos de tu negocio" },
+  "feature.customOwnerDashboard": { en: "Custom owner dashboard", es: "Panel personalizado para el propietario" },
+  "feature.definesKpis": { en: "Defines the KPIs that matter to you", es: "Define los KPIs que te importan" },
+  "feature.salesRevenueAnalytics": { en: "Sales and revenue analytics", es: "Análisis de ventas e ingresos" },
+  "feature.automatedReporting": { en: "Automated reporting", es: "Reportes automatizados" },
+  "feature.aiAssistedInsights": { en: "AI-assisted business insights", es: "Información de negocio asistida por IA" },
+
   "services.monthlySupportFrom": { en: "Monthly support from", es: "Soporte mensual desde" },
   "services.consultOnlyNote": {
     en: "This service is available by consultation only — pricing is confirmed for your specific setup before anything is built.",
@@ -186,6 +218,18 @@ export const translations = {
   "services.employeeUsageDisclaimer": {
     en: "Ongoing AI or API usage may be limited by plan or billed separately.",
     es: "El uso continuo de IA o API puede estar limitado por el plan o facturarse por separado.",
+  },
+  "services.aiAgentsCustomScopeNote": {
+    en: "This starter price covers a single-agent implementation. Multiple agents, departments, locations, voice/SMS channels, custom APIs, databases, or CRM systems require a custom quote.",
+    es: "Este precio inicial cubre una implementación de un solo agente. Múltiples agentes, departamentos, ubicaciones, canales de voz/SMS, APIs personalizadas, bases de datos o sistemas CRM requieren una cotización personalizada.",
+  },
+  "services.securityScopeDisclaimer": {
+    en: "This is a defensive security review and hardening service for the systems we agree on together — not a guarantee of security, not professional penetration testing, and not a regulatory or compliance certification. Larger or custom security engagements require a custom quote.",
+    es: "Este es un servicio defensivo de revisión y fortalecimiento de seguridad para los sistemas que acordemos juntos — no es una garantía de seguridad, no es una prueba de penetración profesional, ni una certificación regulatoria o de cumplimiento. Los proyectos de seguridad más grandes o personalizados requieren una cotización personalizada.",
+  },
+  "services.dataAnalyticsCustomScopeNote": {
+    en: "This starter price covers a defined starter implementation. Multiple databases, CRMs, accounting systems, marketing platforms, locations, departments, custom integrations, data migration, or multiple dashboards require a custom quote.",
+    es: "Este precio inicial cubre una implementación inicial definida. Múltiples bases de datos, CRMs, sistemas de contabilidad, plataformas de marketing, ubicaciones, departamentos, integraciones personalizadas, migración de datos o múltiples paneles requieren una cotización personalizada.",
   },
 
   // --- Pricing section ---

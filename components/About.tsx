@@ -7,7 +7,7 @@ import type { TranslationKey } from "@/lib/i18n/translations";
 
 const stats: { value: string; labelKey: TranslationKey }[] = [
   { value: "24/7", labelKey: "about.stat.coverage" },
-  { value: "10", labelKey: "about.stat.coreSystems" },
+  { value: "13", labelKey: "about.stat.coreSystems" },
   { value: "100%", labelKey: "about.stat.customConfigured" },
 ];
 

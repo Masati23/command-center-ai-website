@@ -72,6 +72,30 @@ function BookIcon() {
     </svg>
   );
 }
+function AgentIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="4" y="8" width="16" height="12" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 8V4m-3 0h6M9 14h.01M15 14h.01" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ShieldIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m9 12 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ChartIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 3v18h18" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 15l4-5 3 3 5-7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 type CheckoutMode = "buy" | "consultOnly";
 
@@ -300,6 +324,81 @@ const services: Service[] = [
     ),
     checkoutMode: "consultOnly",
     additionalCostKey: "services.employeeUsageDisclaimer",
+  },
+  {
+    tag: "Service 11",
+    nameKey: "services.aiAgents.name",
+    price: "Starting at $3,999",
+    monthlySupportPrice: "$399/month",
+    productSlug: "ai-agents-for-business",
+    descriptionKey: "services.aiAgents.description",
+    featureKeys: [
+      "feature.leadQualification",
+      "feature.workflowAutomation",
+      "feature.toolApiIntegrations",
+      "feature.crmIntegration",
+      "feature.humanApprovalSteps",
+      "feature.followUpAutomation",
+    ],
+    visual: (
+      <ServicePanelMockup
+        icon={<AgentIcon />}
+        label="Agent Activity — This Week"
+        items={["61 tasks completed", "9 handed off for approval", "3 workflows automated"]}
+      />
+    ),
+    checkoutMode: "buy",
+    additionalCostKey: "services.aiAgentsCustomScopeNote",
+  },
+  {
+    tag: "Service 12",
+    nameKey: "services.securityHardening.name",
+    price: "Starting at $3,499",
+    monthlySupportPrice: "$299/month",
+    productSlug: "ai-security-hardening",
+    descriptionKey: "services.securityHardening.description",
+    featureKeys: [
+      "feature.securityReview",
+      "feature.credentialProtection",
+      "feature.accessControlReview",
+      "feature.secretsConfiguration",
+      "feature.promptInjectionMitigation",
+      "feature.backupRecoveryPlanning",
+    ],
+    visual: (
+      <ServicePanelMockup
+        icon={<ShieldIcon />}
+        label="Security Review — Summary"
+        items={["18 checklist items reviewed", "6 access controls tightened", "1 backup plan documented"]}
+      />
+    ),
+    checkoutMode: "buy",
+    additionalCostKey: "services.securityScopeDisclaimer",
+  },
+  {
+    tag: "Service 13",
+    nameKey: "services.dataAnalytics.name",
+    price: "Starting at $4,999",
+    monthlySupportPrice: "$399/month",
+    productSlug: "ai-data-analytics-business-intelligence",
+    descriptionKey: "services.dataAnalytics.description",
+    featureKeys: [
+      "feature.connectsDataSources",
+      "feature.customOwnerDashboard",
+      "feature.definesKpis",
+      "feature.salesRevenueAnalytics",
+      "feature.automatedReporting",
+      "feature.aiAssistedInsights",
+    ],
+    visual: (
+      <ServicePanelMockup
+        icon={<ChartIcon />}
+        label="Owner Dashboard — This Month"
+        items={["4 data sources connected", "12 KPIs tracked", "1 automated report sent"]}
+      />
+    ),
+    checkoutMode: "buy",
+    additionalCostKey: "services.dataAnalyticsCustomScopeNote",
   },
 ];
 
