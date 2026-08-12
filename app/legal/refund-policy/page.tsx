@@ -3,7 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Section, Badge } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Refund Policy" };
+export const metadata: Metadata = {
+  title: "Refund Policy",
+  alternates: { canonical: "https://www.commandcenterai.net/legal/refund-policy" },
+};
 
 export default function RefundPolicyPage() {
   return (

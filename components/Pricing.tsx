@@ -121,7 +121,7 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <Button href="#contact" variant={pkg.highlighted ? "primary" : "secondary"} className="mt-8 w-full">
+            <Button href="/#contact" variant={pkg.highlighted ? "primary" : "secondary"} className="mt-8 w-full">
               {t("pricing.freeConsultation")}
             </Button>
           </GlassCard>
@@ -156,7 +156,7 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <Button href="#contact" variant={tier.highlighted ? "primary" : "secondary"} className="mt-8 w-full">
+              <Button href="/#contact" variant={tier.highlighted ? "primary" : "secondary"} className="mt-8 w-full">
                 {t("pricing.support.choose")} {tier.name}
               </Button>
             </GlassCard>

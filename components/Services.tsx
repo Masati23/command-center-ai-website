@@ -490,7 +490,7 @@ export default function Services() {
                   </Button>
                 )}
                 <Button
-                  href="#contact"
+                  href="/#contact"
                   variant="secondary"
                   onClick={() => track("consult_click", service.productSlug)}
                 >
@@ -499,6 +499,28 @@ export default function Services() {
               </div>
               {buyState[service.productSlug] === "error" && (
                 <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
+              )}
+              {service.productSlug === "ai-voice-receptionist-phone-agent" && (
+                <p className="mt-4 text-xs text-silver-500">
+                  Serving Houston businesses —{" "}
+                  <a href="/ai-receptionist-houston" className="text-electric-400 hover:underline">
+                    see our AI Receptionist Houston page
+                  </a>{" "}
+                  or the{" "}
+                  <a href="/ai-answering-service-houston" className="text-electric-400 hover:underline">
+                    AI Answering Service Houston page
+                  </a>
+                  .
+                </p>
+              )}
+              {service.productSlug === "ai-website-chatbot" && (
+                <p className="mt-4 text-xs text-silver-500">
+                  Want the bigger picture?{" "}
+                  <a href="/ai-automation-houston" className="text-electric-400 hover:underline">
+                    See AI automation for Houston businesses
+                  </a>
+                  .
+                </p>
               )}
             </div>
 

@@ -47,10 +47,10 @@ export default function Hero() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
-            <Button href="#contact" variant="primary" className="w-full sm:w-auto">
+            <Button href="/#contact" variant="primary" className="w-full sm:w-auto">
               {t("nav.freeConsultation")}
             </Button>
-            <Button href="#solutions" variant="secondary" className="w-full sm:w-auto">
+            <Button href="/#solutions" variant="secondary" className="w-full sm:w-auto">
               {t("hero.ctaSecondary")}
             </Button>
           </div>

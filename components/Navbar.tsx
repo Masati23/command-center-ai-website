@@ -12,12 +12,16 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { t } = useLanguage();
 
+  // Absolute-path anchors (`/#solutions` not `#solutions`) so these links
+  // still work correctly when the navbar renders on a page other than the
+  // homepage (e.g. the Houston landing pages) — a bare `#solutions` would
+  // try to scroll to an element on the current page and silently do nothing.
   const links = [
-    { label: t("nav.home"), href: "#home" },
-    { label: t("nav.solutions"), href: "#solutions" },
-    { label: t("nav.pricing"), href: "#pricing" },
-    { label: t("nav.about"), href: "#about" },
-    { label: t("nav.contact"), href: "#contact" },
+    { label: t("nav.home"), href: "/#home" },
+    { label: t("nav.solutions"), href: "/#solutions" },
+    { label: t("nav.pricing"), href: "/#pricing" },
+    { label: t("nav.about"), href: "/#about" },
+    { label: t("nav.contact"), href: "/#contact" },
   ];
 
   useEffect(() => {
@@ -34,7 +38,7 @@ export default function Navbar() {
       }`}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link href="#home" className="shrink-0" aria-label="Command Center AI home">
+        <Link href="/#home" className="shrink-0" aria-label="Command Center AI home">
           <Image
             src="/logo-header.png"
             alt="Command Center AI"
@@ -65,7 +69,7 @@ export default function Navbar() {
           >
             {t("nav.learnDiy")}
           </a>
-          <Button href="#contact" variant="primary" className="!px-5 !py-2.5 whitespace-nowrap">
+          <Button href="/#contact" variant="primary" className="!px-5 !py-2.5 whitespace-nowrap">
             {t("nav.freeConsultation")}
           </Button>
         </div>
@@ -109,7 +113,7 @@ export default function Navbar() {
             >
               {t("nav.learnDiyMobile")}
             </a>
-            <Button href="#contact" variant="primary" className="mt-3 w-full" onClick={() => setOpen(false)}>
+            <Button href="/#contact" variant="primary" className="mt-3 w-full" onClick={() => setOpen(false)}>
               {t("nav.freeConsultation")}
             </Button>
           </div>

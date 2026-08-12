@@ -4,6 +4,7 @@ import "./globals.css";
 import ConditionalChatWidget from "@/components/chatbot/ConditionalChatWidget";
 import VisitorTracker from "@/components/VisitorTracker";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import { organizationJsonLd, websiteJsonLd, professionalServiceJsonLd } from "@/lib/seo/jsonld";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -83,31 +84,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: "Command Center AI",
-    image: `${siteUrl}/opengraph-image`,
-    url: siteUrl,
-    email: "commandcenterai.contact@gmail.com",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Houston",
-      addressRegion: "TX",
-      addressCountry: "US",
-    },
-    description,
-    priceRange: "$599 - $2999",
-    areaServed: "US",
-  };
+  const jsonLdBlocks = [organizationJsonLd(), websiteJsonLd(), professionalServiceJsonLd()];
 
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        {jsonLdBlocks.map((block) => (
+          <script
+            key={block["@type"]}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(block) }}
+            suppressHydrationWarning
+          />
+        ))}
       </head>
       <body className="font-sans antialiased">
         <LanguageProvider>

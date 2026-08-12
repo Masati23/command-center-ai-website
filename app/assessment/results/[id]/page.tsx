@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,6 +10,17 @@ import CheckoutOptions from "@/components/assessment/CheckoutOptions";
 import PurchaseWithConfidence from "@/components/PurchaseWithConfidence";
 
 export const dynamic = "force-dynamic";
+
+// Personalized per-visitor results (name, pricing estimate, proposal) —
+// not indexable content, and each one would otherwise be a thin/duplicate
+// page competing with the homepage.
+export const metadata: Metadata = {
+  title: "Your AI Business Assessment Results",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 async function getData(id: string) {
   const assessment = await db.assessment.findUnique({

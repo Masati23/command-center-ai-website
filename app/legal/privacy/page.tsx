@@ -3,7 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Section, Badge } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Privacy Policy" };
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  alternates: { canonical: "https://www.commandcenterai.net/legal/privacy" },
+};
 
 export default function PrivacyPolicyPage() {
   return (

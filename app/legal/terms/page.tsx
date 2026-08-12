@@ -3,7 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Section, Badge } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Terms of Service" };
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  alternates: { canonical: "https://www.commandcenterai.net/legal/terms" },
+};
 
 export default function TermsPage() {
   return (

@@ -3,16 +3,48 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Section, Badge } from "@/components/ui";
 import AssessmentWizard from "@/components/assessment/AssessmentWizard";
+import { breadcrumbJsonLd, SITE_URL } from "@/lib/seo/jsonld";
+
+const title = "Free AI Business Assessment";
+const description =
+  "Answer a few questions about your business and get a personalized AI workforce recommendation with estimated pricing.";
+const pageUrl = `${SITE_URL}/assessment`;
 
 export const metadata: Metadata = {
-  title: "Free AI Business Assessment",
-  description:
-    "Answer a few questions about your business and get a personalized AI workforce recommendation with estimated pricing.",
+  title,
+  description,
+  alternates: {
+    canonical: pageUrl,
+  },
+  openGraph: {
+    type: "website",
+    url: pageUrl,
+    title: `${title} | Command Center AI`,
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${title} | Command Center AI`,
+    description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function AssessmentPage() {
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "Home", url: SITE_URL },
+    { name: "Free AI Business Assessment", url: pageUrl },
+  ]);
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
+      />
       <Navbar />
       <main>
         <Section className="pt-40 sm:pt-48">

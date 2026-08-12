@@ -21,12 +21,12 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white">{t("footer.navigate")}</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-silver-400">
-              <li><a href="#home" className="hover:text-white">{t("nav.home")}</a></li>
-              <li><a href="#solutions" className="hover:text-white">{t("nav.solutions")}</a></li>
-              <li><a href="#pricing" className="hover:text-white">{t("nav.pricing")}</a></li>
-              <li><a href="#about" className="hover:text-white">{t("nav.about")}</a></li>
+              <li><a href="/#home" className="hover:text-white">{t("nav.home")}</a></li>
+              <li><a href="/#solutions" className="hover:text-white">{t("nav.solutions")}</a></li>
+              <li><a href="/#pricing" className="hover:text-white">{t("nav.pricing")}</a></li>
+              <li><a href="/#about" className="hover:text-white">{t("nav.about")}</a></li>
               <li><a href="/assessment" className="hover:text-white">{t("footer.assessment")}</a></li>
-              <li><a href="#contact" className="hover:text-white">{t("nav.contact")}</a></li>
+              <li><a href="/#contact" className="hover:text-white">{t("nav.contact")}</a></li>
               <li>
                 <a href="https://CommandCenterAIAcademy.com" className="hover:text-white">
                   {t("footer.academy")}
@@ -46,6 +46,15 @@ export default function Footer() {
               <li>{t("hero.location")}</li>
             </ul>
           </div>
+        </div>
+
+        <div className="mt-10 border-t border-white/5 pt-8">
+          <h4 className="text-sm font-semibold text-white">AI Solutions in Houston</h4>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-silver-400">
+            <li><a href="/ai-receptionist-houston" className="hover:text-white">AI Receptionist Houston</a></li>
+            <li><a href="/ai-automation-houston" className="hover:text-white">AI Automation Houston</a></li>
+            <li><a href="/ai-answering-service-houston" className="hover:text-white">AI Answering Service Houston</a></li>
+          </ul>
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row">
