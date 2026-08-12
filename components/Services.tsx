@@ -96,6 +96,23 @@ function ChartIcon() {
     </svg>
   );
 }
+function LayoutIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="16" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 9h18M9 9v11" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function LayoutBoltIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="16" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 9h18M9 9v11" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14.5 12.5 12 16h3l-2.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 type CheckoutMode = "buy" | "consultOnly";
 
@@ -103,13 +120,21 @@ interface Service {
   tag: string;
   nameKey: TranslationKey;
   price: string;
-  monthlySupportPrice: string;
+  // One-time website builds don't carry the recurring "monthly AI support"
+  // price the AI systems below do — omit it rather than showing a
+  // misleading $0/month line.
+  monthlySupportPrice?: string;
+  turnaroundKey?: TranslationKey;
   productSlug: string;
   descriptionKey: TranslationKey;
   featureKeys: TranslationKey[];
   visual: React.ReactNode;
   checkoutMode: CheckoutMode;
   additionalCostKey?: TranslationKey;
+  // Renders a small eyebrow + intro directly above this card — used once,
+  // on the first Website Development entry, to visually separate it from
+  // the AI Solutions catalog above without a second page section.
+  groupHeading?: { eyebrowKey: TranslationKey; titleKey: TranslationKey; descriptionKey: TranslationKey };
 }
 
 const services: Service[] = [
@@ -400,6 +425,67 @@ const services: Service[] = [
     checkoutMode: "buy",
     additionalCostKey: "services.dataAnalyticsCustomScopeNote",
   },
+  {
+    tag: "Website Development",
+    nameKey: "services.websiteBasic.name",
+    price: "Starting at $1,499",
+    turnaroundKey: "services.websiteBasic.turnaround",
+    productSlug: "website-professional-business",
+    descriptionKey: "services.websiteBasic.description",
+    featureKeys: [
+      "feature.customWebsiteDesign",
+      "feature.responsiveAllDevices",
+      "feature.upToFiveCorePages",
+      "feature.contactAndLeadForms",
+      "feature.basicSeoSetup",
+      "feature.googleAnalyticsIntegration",
+      "feature.socialMediaIntegration",
+      "feature.domainSslSetup",
+      "feature.deploymentAndLaunch",
+      "feature.postLaunchSupport30",
+    ],
+    visual: (
+      <ServicePanelMockup
+        icon={<LayoutIcon />}
+        label="Professional Business Website"
+        items={["Up to 5 core pages", "Desktop, tablet & mobile ready", "Launch in 3–5 business days"]}
+      />
+    ),
+    checkoutMode: "buy",
+    additionalCostKey: "services.websiteBasic.scopeNote",
+    groupHeading: {
+      eyebrowKey: "services.websiteGroup.eyebrow",
+      titleKey: "services.websiteGroup.title",
+      descriptionKey: "services.websiteGroup.description",
+    },
+  },
+  {
+    tag: "Website Development",
+    nameKey: "services.websiteAutomation.name",
+    price: "$2,999",
+    turnaroundKey: "services.websiteAutomation.turnaround",
+    productSlug: "website-ai-automation-package",
+    descriptionKey: "services.websiteAutomation.description",
+    featureKeys: [
+      "feature.everythingInWebsiteBasic",
+      "feature.aiChatbotConfigured",
+      "feature.smartLeadCapture",
+      "feature.appointmentRequestRouting",
+      "feature.automatedLeadFollowUp",
+      "feature.followUpWorkflowConfigured",
+      "feature.crmEmailIntegrationSupported",
+      "feature.aiAutomationConsultation",
+    ],
+    visual: (
+      <ServicePanelMockup
+        icon={<LayoutBoltIcon />}
+        label="Website + AI Automation"
+        items={["AI chatbot included", "Lead capture & follow-up", "Launch in 5–10 business days"]}
+      />
+    ),
+    checkoutMode: "buy",
+    additionalCostKey: "services.websiteAutomation.scopeNote",
+  },
 ];
 
 export default function Services() {
@@ -444,22 +530,38 @@ export default function Services() {
 
       <div className="mt-20 space-y-24">
         {services.map((service, idx) => (
-          <div
-            key={service.nameKey}
-            id={service.productSlug}
-            className={`grid grid-cols-1 items-center gap-12 scroll-mt-28 lg:grid-cols-2 lg:gap-16 ${
-              idx % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""
-            }`}
-          >
+          <React.Fragment key={service.nameKey}>
+            {service.groupHeading && (
+              <div className="border-t border-white/10 pt-16 text-center">
+                <Badge>{t(service.groupHeading.eyebrowKey)}</Badge>
+                <h3 className="mx-auto mt-5 max-w-2xl text-2xl font-semibold text-white sm:text-3xl">
+                  {t(service.groupHeading.titleKey)}
+                </h3>
+                <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-silver-400">
+                  {t(service.groupHeading.descriptionKey)}
+                </p>
+              </div>
+            )}
+            <div
+              id={service.productSlug}
+              className={`grid grid-cols-1 items-center gap-12 scroll-mt-28 lg:grid-cols-2 lg:gap-16 ${
+                idx % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""
+              }`}
+            >
             <div>
               <Badge>{service.tag}</Badge>
               <h3 className="mt-5 text-2xl font-semibold text-white sm:text-3xl">{t(service.nameKey)}</h3>
               <p className="mt-3 text-base leading-relaxed text-silver-400">{t(service.descriptionKey)}</p>
 
               <p className="mt-5 text-2xl font-semibold text-gradient">{service.price}</p>
-              <p className="mt-1 text-sm text-silver-400">
-                {t("services.monthlySupportFrom")} {service.monthlySupportPrice}
-              </p>
+              {service.monthlySupportPrice && (
+                <p className="mt-1 text-sm text-silver-400">
+                  {t("services.monthlySupportFrom")} {service.monthlySupportPrice}
+                </p>
+              )}
+              {service.turnaroundKey && (
+                <p className="mt-1 text-sm text-silver-400">{t(service.turnaroundKey)}</p>
+              )}
 
               <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-silver-500">
                 {t("services.whatsIncluded")}
@@ -522,10 +624,33 @@ export default function Services() {
                   .
                 </p>
               )}
+              {service.productSlug === "website-professional-business" && (
+                <p className="mt-4 text-xs text-silver-500">
+                  Ready to add AI on top of it?{" "}
+                  <a href="#website-ai-automation-package" className="text-electric-400 hover:underline">
+                    See the Website + AI Automation Package
+                  </a>
+                  .
+                </p>
+              )}
+              {service.productSlug === "website-ai-automation-package" && (
+                <p className="mt-4 text-xs text-silver-500">
+                  {t("services.websiteAutomation.voiceUpsellNote")}{" "}
+                  <a href="#ai-voice-receptionist-phone-agent" className="text-electric-400 hover:underline">
+                    See the AI Voice Receptionist
+                  </a>
+                  . Want a fuller AI system later?{" "}
+                  <a href="#ai-business-command-center" className="text-electric-400 hover:underline">
+                    See the AI Business Command Center
+                  </a>
+                  .
+                </p>
+              )}
             </div>
 
             <div>{service.visual}</div>
-          </div>
+            </div>
+          </React.Fragment>
         ))}
       </div>
 

@@ -150,6 +150,89 @@ export const translations = {
     es: "Un panel a nivel de propietario que conecta los datos de tu negocio, define los KPIs importantes, y convierte la actividad de visitantes, ventas y marketing en reportes claros y automatizados con información asistida por IA.",
   },
 
+  // --- Website Development (separate from the AI Solutions catalog above) ---
+  "services.websiteGroup.eyebrow": { en: "Website Development", es: "Desarrollo de Sitios Web" },
+  "services.websiteGroup.title": {
+    en: "Need a website too? Start here.",
+    es: "¿También necesitas un sitio web? Empieza aquí.",
+  },
+  "services.websiteGroup.description": {
+    en: "A professional website of your own — with a clear path to add AI automation on top of it whenever you're ready.",
+    es: "Un sitio web profesional propio — con un camino claro para agregar automatización de IA cuando estés listo.",
+  },
+  "services.websiteBasic.name": { en: "Professional Business Website", es: "Sitio Web Profesional para tu Negocio" },
+  "services.websiteBasic.description": {
+    en: "A modern, professional business website built to look great and work properly across desktop, tablet, and mobile devices.",
+    es: "Un sitio web moderno y profesional para tu negocio, hecho para verse bien y funcionar correctamente en computadora, tablet y celular.",
+  },
+  "services.websiteBasic.turnaround": {
+    en: "Typical turnaround: 3–5 business days",
+    es: "Tiempo típico de entrega: 3–5 días hábiles",
+  },
+  "services.websiteBasic.scopeNote": {
+    en: "Starting price covers up to 5 core pages with standard functionality. Larger or more complex websites, ecommerce, memberships, extensive custom integrations, additional pages, or advanced functionality may require a custom quote.",
+    es: "El precio inicial cubre hasta 5 páginas principales con funcionalidad estándar. Sitios web más grandes o complejos, tiendas en línea, membresías, integraciones personalizadas extensas, páginas adicionales o funciones avanzadas pueden requerir una cotización personalizada.",
+  },
+  "services.websiteAutomation.name": { en: "Website + AI Automation Package", es: "Paquete de Sitio Web + Automatización de IA" },
+  "services.websiteAutomation.description": {
+    en: "A professional business website combined with practical AI automation designed to help your business capture, respond to, and follow up with customers.",
+    es: "Un sitio web profesional para tu negocio combinado con automatización de IA práctica, diseñada para ayudarte a captar, responder y dar seguimiento a tus clientes.",
+  },
+  "services.websiteAutomation.turnaround": {
+    en: "Typical turnaround: 5–10 business days",
+    es: "Tiempo típico de entrega: 5–10 días hábiles",
+  },
+  "services.websiteAutomation.scopeNote": {
+    en: "Includes everything in the Professional Business Website package. Does not include the AI Voice Receptionist / Phone Agent — that stays available as a separate add-on. Third-party costs such as hosting, messaging, phone service, CRM subscriptions, AI usage, or other external platform fees may be separate unless specifically included in your project agreement.",
+    es: "Incluye todo lo del paquete de Sitio Web Profesional. No incluye el Recepcionista Telefónico de IA — ese servicio se mantiene disponible por separado. Costos de terceros como hospedaje, mensajería, servicio telefónico, suscripciones de CRM, uso de IA u otras tarifas de plataformas externas pueden ser aparte, a menos que se incluyan específicamente en tu acuerdo de proyecto.",
+  },
+  "services.websiteAutomation.voiceUpsellNote": {
+    en: "Want your phone calls answered by AI too? The AI Voice Receptionist / Phone Agent is available as a separate add-on.",
+    es: "¿También quieres que la IA conteste tus llamadas? El Recepcionista Telefónico de IA está disponible como complemento por separado.",
+  },
+  "feature.customWebsiteDesign": { en: "Custom professional website design", es: "Diseño web profesional y personalizado" },
+  "feature.responsiveAllDevices": { en: "Responsive on desktop, tablet, and mobile", es: "Adaptado a computadora, tablet y celular" },
+  "feature.upToFiveCorePages": { en: "Up to 5 core pages", es: "Hasta 5 páginas principales" },
+  "feature.contactAndLeadForms": { en: "Contact forms and lead-capture forms", es: "Formularios de contacto y captura de clientes potenciales" },
+  "feature.basicSeoSetup": { en: "Basic SEO setup", es: "Configuración básica de SEO" },
+  "feature.googleAnalyticsIntegration": { en: "Google Analytics integration", es: "Integración con Google Analytics" },
+  "feature.socialMediaIntegration": { en: "Social media integration", es: "Integración con redes sociales" },
+  "feature.domainSslSetup": { en: "Domain connection and SSL/security setup", es: "Conexión de dominio y configuración SSL/seguridad" },
+  "feature.deploymentAndLaunch": { en: "Deployment and launch", es: "Publicación y lanzamiento" },
+  "feature.postLaunchSupport30": { en: "30 days of post-launch support", es: "30 días de soporte posteriores al lanzamiento" },
+  "feature.everythingInWebsiteBasic": {
+    en: "Everything in the Professional Business Website package",
+    es: "Todo lo del paquete de Sitio Web Profesional",
+  },
+  "feature.aiChatbotConfigured": {
+    en: "Custom AI chatbot configured around your business, answering questions 24/7",
+    es: "Chatbot de IA personalizado para tu negocio, respondiendo preguntas las 24 horas",
+  },
+  "feature.smartLeadCapture": {
+    en: "Smart lead capture — name, phone, email, and service needs",
+    es: "Captura inteligente de clientes potenciales — nombre, teléfono, correo y necesidad de servicio",
+  },
+  "feature.appointmentRequestRouting": {
+    en: "Appointment request/booking integration where supported, with routing and business notifications",
+    es: "Integración de solicitud de citas donde sea compatible, con enrutamiento y notificaciones al negocio",
+  },
+  "feature.automatedLeadFollowUp": {
+    en: "Automated initial follow-up and customer confirmation messages",
+    es: "Seguimiento inicial automatizado y mensajes de confirmación al cliente",
+  },
+  "feature.followUpWorkflowConfigured": {
+    en: "Follow-up workflow configured around your sales process",
+    es: "Flujo de seguimiento configurado según tu proceso de ventas",
+  },
+  "feature.crmEmailIntegrationSupported": {
+    en: "Supported CRM/email integration where appropriate",
+    es: "Integración compatible con CRM/correo cuando corresponda",
+  },
+  "feature.aiAutomationConsultation": {
+    en: "AI automation consultation to identify further time-saving opportunities",
+    es: "Consulta de automatización de IA para identificar más oportunidades de ahorrar tiempo",
+  },
+
   "feature.answersSupportQuestions": { en: "Answers customer questions", es: "Responde preguntas de clientes" },
   "feature.organizesRequests": { en: "Organizes support requests", es: "Organiza solicitudes de soporte" },
   "feature.escalatesIssues": { en: "Escalates serious issues", es: "Escala problemas graves" },
