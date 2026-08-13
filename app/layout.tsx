@@ -48,11 +48,24 @@ export const metadata: Metadata = {
     title,
     description,
     locale: "en_US",
+    // Static file (public/og-image.png), not the old auto-generated
+    // app/opengraph-image.tsx route — that dynamic version rendered a
+    // plain placeholder circle instead of the real logo, which is what
+    // was showing up as the "wrong branding image" on Facebook/LinkedIn.
+    images: [
+      {
+        url: `${siteUrl}/og-image.png`,
+        width: 1731,
+        height: 909,
+        alt: "Command Center AI — We Build AI Command Centers for Businesses",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: [`${siteUrl}/og-image.png`],
   },
   robots: {
     index: true,

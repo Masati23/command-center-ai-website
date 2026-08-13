@@ -49,7 +49,7 @@ export function professionalServiceJsonLd() {
     "@id": `${SITE_URL}/#professionalservice`,
     name: ORG_NAME,
     url: SITE_URL,
-    image: `${SITE_URL}/opengraph-image`,
+    image: `${SITE_URL}/og-image.png`,
     email: CONTACT_EMAIL,
     address: {
       "@type": "PostalAddress",

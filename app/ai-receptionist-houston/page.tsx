@@ -18,11 +18,13 @@ export const metadata: Metadata = {
     url: pageUrl,
     title,
     description,
+    images: [{ url: `${SITE_URL}/og-image.png`, width: 1731, height: 909, alt: "Command Center AI" }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: [`${SITE_URL}/og-image.png`],
   },
   robots: { index: true, follow: true },
 };

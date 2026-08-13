@@ -21,11 +21,13 @@ export const metadata: Metadata = {
     url: pageUrl,
     title: `${title} | Command Center AI`,
     description,
+    images: [{ url: `${SITE_URL}/og-image.png`, width: 1731, height: 909, alt: "Command Center AI" }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${title} | Command Center AI`,
     description,
+    images: [`${SITE_URL}/og-image.png`],
   },
   robots: {
     index: true,
