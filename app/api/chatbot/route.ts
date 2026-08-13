@@ -13,6 +13,10 @@ const bodySchema = z.object({
   sessionId: z.string(),
   message: z.string().min(1).max(2000),
   language: z.enum(["en", "es"]).default("en"),
+  // Optional landing-page hint, e.g. "missed-call-fix" or
+  // "missed-call-fix:auto-repair" — lets the system prompt frame answers
+  // around the page the visitor is actually on. Absent on every other page.
+  pageContext: z.string().max(100).optional(),
 });
 
 // Customer-facing fallback for any chatbot failure — configuration missing,
@@ -80,7 +84,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
-  const { sessionId, message, language } = parsed.data;
+  const { sessionId, message, language, pageContext } = parsed.data;
 
   if (!openaiConfigured) {
     // The one place this exact technical detail is allowed to exist —
@@ -116,7 +120,7 @@ export async function POST(req: NextRequest) {
   });
 
   const products = await db.product.findMany({ where: { status: "ACTIVE" } });
-  const systemPrompt = buildChatSystemPrompt(products, language);
+  const systemPrompt = buildChatSystemPrompt(products, language, pageContext);
 
   const history = conversation.messages.map((m) => ({
     role: m.role as "user" | "assistant",
@@ -144,7 +148,7 @@ export async function POST(req: NextRequest) {
         type: "chatbot_message",
         refId: conversation.id,
         email: conversation.customerEmail ?? undefined,
-        metadata: { flaggedUnanswered, recommendedServiceSlug },
+        metadata: { flaggedUnanswered, recommendedServiceSlug, pageContext: pageContext ?? null },
       },
     });
 

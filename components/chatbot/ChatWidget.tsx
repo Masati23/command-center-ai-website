@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/Logo";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -84,6 +85,23 @@ export default function ChatWidget() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // usePathname (not useSearchParams) so this never forces the page out of
+  // static rendering — same reasoning as VisitorTracker.tsx. The industry
+  // query param, if any, is read directly off window.location in an effect
+  // instead. Only ever non-null on /missed-call-fix; every other page sends
+  // no pageContext at all, so the chatbot's behavior elsewhere is unchanged.
+  const pathname = usePathname();
+  const [pageContext, setPageContext] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pathname !== "/missed-call-fix") {
+      setPageContext(null);
+      return;
+    }
+    const industry = new URLSearchParams(window.location.search).get("industry");
+    setPageContext(industry ? `missed-call-fix:${industry}` : "missed-call-fix");
+  }, [pathname]);
+
   useEffect(() => {
     let id = localStorage.getItem(SESSION_KEY);
     if (!id) {
@@ -110,7 +128,7 @@ export default function ChatWidget() {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, message: userMessage, language }),
+        body: JSON.stringify({ sessionId, message: userMessage, language, pageContext: pageContext ?? undefined }),
       });
       const data = await res.json();
       if (!res.ok) {

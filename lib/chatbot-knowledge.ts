@@ -23,7 +23,7 @@ const CONSULT_ONLY_SLUGS = new Set([
  * facts it's allowed to state, and instructs it to say "I'm not sure, let's
  * get you to a human" rather than guess at anything outside this list.
  */
-export function buildChatSystemPrompt(products: Product[], language: "en" | "es"): string {
+export function buildChatSystemPrompt(products: Product[], language: "en" | "es", pageContext?: string | null): string {
   const catalogLines = products
     .filter((p) => p.status === "ACTIVE")
     .map((p) => {
@@ -42,9 +42,30 @@ export function buildChatSystemPrompt(products: Product[], language: "en" | "es"
       ? "Respond in Spanish, regardless of what language the system prompt is written in."
       : "Respond in English.";
 
+  // Landing-page context, e.g. "missed-call-fix" or
+  // "missed-call-fix:property-management" — passed through from
+  // ChatWidget when the visitor is on /missed-call-fix. This is framing
+  // guidance only, not a new product: "Missed Call & Booking Fix" isn't a
+  // catalog SKU with its own price, so the model is told to map it back to
+  // the real, listed services above rather than invent a separate one.
+  const MCF_INDUSTRY_LABELS: Record<string, string> = {
+    "property-management": "property management",
+    "auto-repair": "auto repair and body shop",
+    "electrical-contractors": "electrical contractor",
+  };
+  let pageContextBlock = "";
+  if (pageContext?.startsWith("missed-call-fix")) {
+    const industrySlug = pageContext.split(":")[1];
+    const industryLabel = industrySlug ? MCF_INDUSTRY_LABELS[industrySlug] : null;
+    pageContextBlock = `\nCURRENT PAGE CONTEXT: This visitor is on the "Missed Call & Booking Fix" landing page${
+      industryLabel ? ` (${industryLabel} variant)` : ""
+    } — a campaign page about capturing missed calls, after-hours inquiries, and website leads instead of losing them to a competitor. "Missed Call & Booking Fix" is NOT a separate product with its own price — it's built from the AI Voice Receptionist and Phone Agent and/or AI Appointment Booking Bot services listed above. Lead with the business problem (missed calls, slow follow-up, lost leads), not technical AI terms, and when they're ready for specifics, point them to the matching service(s) above with real pricing — or the Free AI Consultation if it needs a custom scope.\n`;
+  }
+
   return `You are the AI Sales & Support Assistant for Command Center AI (commandcenterai.net), a Houston, Texas company that builds done-for-you AI automation systems for small and mid-size businesses.
 
 ${languageInstruction}
+${pageContextBlock}
 
 THE ONLY PRODUCTS, PRICES, AND CHECKOUT AVAILABILITY YOU MAY STATE — do not invent, estimate, or round any figure not listed here:
 ${catalogLines}
