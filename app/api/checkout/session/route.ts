@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { stripe, stripeConfigured, DEPOSIT_PERCENTAGE } from "@/lib/stripe";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
+import { buildCheckoutAttribution } from "@/lib/checkout-attribution";
 
 export const runtime = "nodejs";
 
@@ -118,12 +119,14 @@ export async function POST(req: NextRequest) {
       data: { stripeCheckoutSessionId: session.id },
     });
 
+    const attribution = await buildCheckoutAttribution(req);
+
     await db.eventLog.create({
       data: {
         type: "checkout_started",
         refId: order.id,
         email: proposal.customer.email,
-        metadata: { paymentPlanType, amountDue },
+        metadata: { paymentPlanType, amountDue, ...attribution },
       },
     });
 

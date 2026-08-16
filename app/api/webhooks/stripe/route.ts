@@ -51,6 +51,9 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed":
         await handleCheckoutCompleted(event);
         break;
+      case "checkout.session.expired":
+        await handleCheckoutExpired(event);
+        break;
       case "invoice.payment_succeeded":
         await handleInvoicePaymentSucceeded(event);
         break;
@@ -226,6 +229,42 @@ async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Strip
   });
 
   // Priority 3 (purchase SMS + email alerts to the owner) hooks in here next.
+}
+
+/**
+ * checkout.session.expired fires ~24h after a Checkout Session is created
+ * if the buyer never completes payment (Stripe's own default expiry window
+ * for one-time "payment" mode sessions — not something this app controls
+ * or can shorten/lengthen without a Stripe dashboard/API setting change).
+ * This is purely additive visibility: it records that a started checkout
+ * ended without payment, using only fields Stripe actually provides on the
+ * event. It never mutates Order/Payment state — a customer could still be
+ * mid-checkout on a *different*, newer session for the same product, and
+ * marking anything FAILED here could contradict that. Existing checkout
+ * and payment-success behavior is completely unchanged.
+ */
+async function handleCheckoutExpired(event: Stripe.Event) {
+  const session = event.data.object as Stripe.Checkout.Session;
+
+  const isDirectPurchase = session.metadata?.source === "direct_purchase";
+  const productSlug = session.metadata?.productSlug ?? null;
+  const orderId = session.metadata?.orderId ?? null;
+  const refId = isDirectPurchase ? session.id : orderId ?? session.id;
+
+  await db.eventLog.create({
+    data: {
+      type: "checkout_expired",
+      refId,
+      metadata: {
+        stripeEventId: event.id,
+        stripeSessionId: session.id,
+        source: isDirectPurchase ? "direct_purchase" : "proposal",
+        productSlug,
+        amountTotal: session.amount_total,
+        currency: session.currency,
+      },
+    },
+  });
 }
 
 async function handleInvoicePaymentSucceeded(event: Stripe.Event) {

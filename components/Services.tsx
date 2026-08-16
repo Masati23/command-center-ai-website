@@ -492,13 +492,28 @@ export default function Services() {
   const { t } = useLanguage();
   const [buyState, setBuyState] = useState<Record<string, "idle" | "loading" | "error">>({});
 
-  // Fire-and-forget — a tracking failure should never affect the actual
-  // button action, so this is deliberately not awaited or error-surfaced.
+  // Still best-effort (a tracking failure should never affect the actual
+  // button action), but this used to be a plain, un-awaited fetch — which
+  // the browser can and does cancel when handleBuy immediately navigates
+  // away via window.location.href right after. That silently dropped most
+  // buy_click events (confirmed: Service Interest showed 19 checkouts
+  // started but only 3 buy_click events logged). navigator.sendBeacon is
+  // built exactly for "fire this as the page is unloading" — the browser
+  // guarantees delivery without blocking navigation, so there's no added
+  // checkout delay. Falls back to a keepalive fetch for the rare browser
+  // without sendBeacon support (still best-effort, not awaited).
   function track(type: "buy_click" | "consult_click", productSlug: string) {
+    const payload = JSON.stringify({ type, productSlug });
+    if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: "application/json" });
+      const sent = navigator.sendBeacon("/api/track", blob);
+      if (sent) return;
+    }
     fetch("/api/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, productSlug }),
+      body: payload,
+      keepalive: true,
     }).catch(() => {});
   }
 

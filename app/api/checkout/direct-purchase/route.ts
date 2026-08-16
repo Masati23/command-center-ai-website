@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { stripe, stripeConfigured } from "@/lib/stripe";
 import { isRateLimited, getClientIp } from "@/lib/rate-limit";
+import { buildCheckoutAttribution } from "@/lib/checkout-attribution";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -88,11 +89,18 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const attribution = await buildCheckoutAttribution(req);
+
     await db.eventLog.create({
       data: {
         type: "checkout_started",
         refId: session.id,
-        metadata: { source: "direct_purchase", productSlug: product.slug, amount: product.basePrice },
+        metadata: {
+          source: "direct_purchase",
+          productSlug: product.slug,
+          amount: product.basePrice,
+          ...attribution,
+        },
       },
     });
 

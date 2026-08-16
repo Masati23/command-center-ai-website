@@ -6,11 +6,12 @@ import { GlassCard } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function AdminServiceInterestPage() {
-  const [products, buyClicks, consultClicks, checkoutEvents, paidItems] = await Promise.all([
+  const [products, buyClicks, consultClicks, checkoutEvents, expiredEvents, paidItems] = await Promise.all([
     db.product.findMany({ where: { category: "CORE", status: "ACTIVE" }, orderBy: { sortOrder: "asc" } }),
     db.eventLog.findMany({ where: { type: "buy_click" } }),
     db.eventLog.findMany({ where: { type: "consult_click" } }),
     db.eventLog.findMany({ where: { type: "checkout_started" } }),
+    db.eventLog.findMany({ where: { type: "checkout_expired" } }),
     db.orderItem.findMany({
       where: { order: { status: { in: ["PAID", "PARTIALLY_PAID"] } } },
       include: { product: true },
@@ -26,11 +27,12 @@ export default async function AdminServiceInterestPage() {
     const buys = buyClicks.filter((e) => slugFromEvent(e) === p.slug).length;
     const consults = consultClicks.filter((e) => slugFromEvent(e) === p.slug).length;
     const checkouts = checkoutEvents.filter((e) => slugFromEvent(e) === p.slug).length;
+    const expired = expiredEvents.filter((e) => slugFromEvent(e) === p.slug).length;
     const purchases = paidItems.filter((i) => i.productId === p.id);
     const revenueCents = purchases.reduce((sum, i) => sum + i.price, 0);
     const conversionPct = buys > 0 ? Math.round((purchases.length / buys) * 100) : 0;
 
-    return { product: p, buys, consults, checkouts, purchaseCount: purchases.length, revenueCents, conversionPct };
+    return { product: p, buys, consults, checkouts, expired, purchaseCount: purchases.length, revenueCents, conversionPct };
   });
 
   return (
@@ -48,6 +50,7 @@ export default async function AdminServiceInterestPage() {
               <th className="px-5 py-3">Buy Clicks</th>
               <th className="px-5 py-3">Consult Clicks</th>
               <th className="px-5 py-3">Checkouts Started</th>
+              <th className="px-5 py-3">Expired</th>
               <th className="px-5 py-3">Purchases</th>
               <th className="px-5 py-3">Revenue</th>
               <th className="px-5 py-3">Conversion</th>
@@ -69,6 +72,7 @@ export default async function AdminServiceInterestPage() {
                 <td className="px-5 py-3">{r.buys}</td>
                 <td className="px-5 py-3">{r.consults}</td>
                 <td className="px-5 py-3">{r.checkouts}</td>
+                <td className="px-5 py-3">{r.expired}</td>
                 <td className="px-5 py-3">{r.purchaseCount}</td>
                 <td className="px-5 py-3">{formatCents(r.revenueCents)}</td>
                 <td className="px-5 py-3">{r.conversionPct}%</td>
@@ -80,7 +84,10 @@ export default async function AdminServiceInterestPage() {
 
       <p className="mt-4 text-xs leading-relaxed text-silver-500">
         Buy/Consult clicks are logged the moment a button is clicked, before the visitor necessarily finishes
-        anything — that's intentional, so you can see interest even where it didn't convert.{" "}
+        anything — that's intentional, so you can see interest even where it didn't convert. &ldquo;Expired&rdquo;
+        counts checkouts where Stripe&rsquo;s own session expired (its default is ~24h after creation with no
+        completed payment) — a real signal the visitor didn&rsquo;t finish, not a guess. A checkout can show as
+        neither Expired nor Purchased yet if it&rsquo;s still within that window.{" "}
         <Link href="/admin" className="text-electric-400 hover:underline">
           ← Back to Overview
         </Link>

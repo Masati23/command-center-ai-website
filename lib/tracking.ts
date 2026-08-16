@@ -69,3 +69,21 @@ export function classifyDevice(userAgent: string | null): "mobile" | "tablet" | 
   if (/mobi|android|iphone/.test(ua)) return "mobile";
   return "desktop";
 }
+
+/**
+ * Coarse browser family only — never the full user-agent string. This is
+ * intentionally low-resolution (no OS/version/build details) so it's useful
+ * for "did mobile Safari behave differently than Chrome" style questions
+ * without doing anything close to device fingerprinting.
+ */
+export function classifyBrowser(userAgent: string | null): string {
+  if (!userAgent) return "unknown";
+  const ua = userAgent.toLowerCase();
+  if (ua.includes("edg/")) return "Edge";
+  if (ua.includes("samsungbrowser")) return "Samsung Internet";
+  if (ua.includes("crios") || (ua.includes("chrome") && !ua.includes("chromium"))) return "Chrome";
+  if (ua.includes("fxios") || ua.includes("firefox")) return "Firefox";
+  if (ua.includes("opr/") || ua.includes("opera")) return "Opera";
+  if (ua.includes("safari") && !ua.includes("chrome") && !ua.includes("crios")) return "Safari";
+  return "Other";
+}
