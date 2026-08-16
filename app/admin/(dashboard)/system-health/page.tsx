@@ -50,7 +50,7 @@ export default async function AdminSystemHealthPage() {
       db.chatMessage.count({ where: { createdAt: { gte: oneDayAgo } } }),
     ]);
 
-  const envVars: { name: string; present: boolean; required: boolean }[] = [
+  const envVars: { name: string; present: boolean; required: boolean; note?: string }[] = [
     { name: "DATABASE_URL", present: !!process.env.DATABASE_URL, required: true },
     { name: "STRIPE_SECRET_KEY", present: !!process.env.STRIPE_SECRET_KEY, required: true },
     { name: "STRIPE_WEBHOOK_SECRET", present: !!process.env.STRIPE_WEBHOOK_SECRET, required: true },
@@ -58,9 +58,24 @@ export default async function AdminSystemHealthPage() {
     { name: "RESEND_API_KEY", present: !!process.env.RESEND_API_KEY, required: true },
     { name: "OPENAI_API_KEY", present: !!process.env.OPENAI_API_KEY, required: true },
     { name: "AUTH_SECRET", present: !!process.env.AUTH_SECRET, required: true },
-    { name: "CONTACT_NOTIFY_EMAIL", present: !!process.env.CONTACT_NOTIFY_EMAIL, required: false },
-    { name: "CRM_WEBHOOK_URL", present: !!process.env.CRM_WEBHOOK_URL, required: false },
-    { name: "CRON_SECRET", present: !!process.env.CRON_SECRET, required: false },
+    {
+      name: "CONTACT_NOTIFY_EMAIL",
+      present: !!process.env.CONTACT_NOTIFY_EMAIL,
+      required: false,
+      note: "Optional — code already defaults to commandcenterai.contact@gmail.com when unset. Set explicitly only to override that default.",
+    },
+    {
+      name: "CRM_WEBHOOK_URL",
+      present: !!process.env.CRM_WEBHOOK_URL,
+      required: false,
+      note: "Optional — only needed if you want new leads also pushed to an external CRM. No current feature depends on it.",
+    },
+    {
+      name: "CRON_SECRET",
+      present: !!process.env.CRON_SECRET,
+      required: false,
+      note: "Optional — secures the daily abandoned-assessment cron job (vercel.json). Vercel already authenticates its own cron requests even without this set; adding it is defense-in-depth, not a requirement.",
+    },
   ];
 
   return (
@@ -145,9 +160,14 @@ export default async function AdminSystemHealthPage() {
         <p className="text-xs font-semibold uppercase tracking-wide text-silver-500">Environment Variables (presence only)</p>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {envVars.map((v) => (
-            <div key={v.name} className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2 text-sm">
-              <span className="font-mono text-xs text-silver-300">{v.name}</span>
-              <StatusPill status={v.present ? "healthy" : v.required ? "error" : "warning"} />
+            <div key={v.name} className="rounded-lg bg-white/[0.03] px-3 py-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs text-silver-300">{v.name}</span>
+                <StatusPill status={v.present ? "healthy" : v.required ? "error" : "warning"} />
+              </div>
+              {!v.present && v.note && (
+                <p className="mt-1 text-xs leading-relaxed text-silver-500">{v.note}</p>
+              )}
             </div>
           ))}
         </div>
