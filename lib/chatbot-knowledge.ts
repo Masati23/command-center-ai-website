@@ -24,8 +24,19 @@ const CONSULT_ONLY_SLUGS = new Set([
  * get you to a human" rather than guess at anything outside this list.
  */
 export function buildChatSystemPrompt(products: Product[], language: "en" | "es", pageContext?: string | null): string {
+  // CORE only. The Product table also holds a MODULE tier (e.g.
+  // "ai-sms-assistant", "ai-review-assistant") seeded for the assessment/
+  // recommendation engine's internal scoring — these were never built out
+  // as their own page sections on commandcenterai.net (no #slug anchor, no
+  // Buy button), so a MODULE row was showing up in chat answers with a
+  // dead "Section link" and, in ai-voice-receptionist's case, a real name/
+  // price collision against the launched CORE product
+  // "ai-voice-receptionist-phone-agent". Excluding MODULE here doesn't
+  // delete or retire those rows — they're still used by the assessment
+  // engine — it just stops the chatbot presenting unlaunched internal
+  // add-ons as if they were purchasable catalog services.
   const catalogLines = products
-    .filter((p) => p.status === "ACTIVE")
+    .filter((p) => p.status === "ACTIVE" && p.category === "CORE")
     .map((p) => {
       const checkout = CONSULT_ONLY_SLUGS.has(p.slug)
         ? "Free Consultation / Custom Quote only — no direct checkout"
