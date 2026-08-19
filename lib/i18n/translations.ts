@@ -669,6 +669,56 @@ export const translations = {
     es: "Command Center AI construye tus sistemas de IA por ti. Command Center AI Academy te enseña a construirlos tú mismo.",
   },
   "academy.button": { en: "Visit the Academy", es: "Visitar la Academia" },
+
+  // --- What Happens After You Purchase ---
+  "afterPurchase.eyebrow": { en: "The Process", es: "El Proceso" },
+  "afterPurchase.title": { en: "What happens after you purchase", es: "Qué sucede después de tu compra" },
+  "afterPurchase.description": {
+    en: "A clear, five-step path from purchase to a live system — no guesswork about what happens next.",
+    es: "Un camino claro de cinco pasos, desde la compra hasta un sistema en funcionamiento — sin adivinar qué sigue.",
+  },
+  "afterPurchase.step1.title": { en: "Business Review", es: "Revisión del Negocio" },
+  "afterPurchase.step1.body": {
+    en: "We review your goals, workflow, existing tools, and the system you purchased.",
+    es: "Revisamos tus objetivos, flujo de trabajo, herramientas existentes y el sistema que compraste.",
+  },
+  "afterPurchase.step2.title": { en: "System Setup", es: "Configuración del Sistema" },
+  "afterPurchase.step2.body": {
+    en: "We configure your AI system around your actual business process.",
+    es: "Configuramos tu sistema de IA según el proceso real de tu negocio.",
+  },
+  "afterPurchase.step3.title": { en: "Integration & Testing", es: "Integración y Pruebas" },
+  "afterPurchase.step3.body": {
+    en: "Approved platforms, accounts, and workflows are connected and tested before launch.",
+    es: "Las plataformas, cuentas y flujos de trabajo aprobados se conectan y se prueban antes del lanzamiento.",
+  },
+  "afterPurchase.step4.title": { en: "Launch", es: "Lanzamiento" },
+  "afterPurchase.step4.body": {
+    en: "Once testing and required client approvals are complete, the system is deployed.",
+    es: "Una vez completadas las pruebas y las aprobaciones necesarias del cliente, el sistema se implementa.",
+  },
+  "afterPurchase.step5.title": { en: "Ongoing Support", es: "Soporte Continuo" },
+  "afterPurchase.step5.body": {
+    en: "Optional support plans keep the system monitored, maintained, updated, and optimized.",
+    es: "Los planes de soporte opcionales mantienen el sistema monitoreado, mantenido, actualizado y optimizado.",
+  },
+  "afterPurchase.timeline": {
+    en: "Typical setup for most starter systems is approximately 5–10 business days, depending on complexity, integrations, and how quickly required information or account access is provided.",
+    es: "La configuración típica para la mayoría de los sistemas iniciales es de aproximadamente 5–10 días hábiles, dependiendo de la complejidad, las integraciones y la rapidez con la que se proporcione la información o el acceso a cuentas requerido.",
+  },
+
+  // --- Free AI Business Assessment secondary CTA (reused in multiple spots) ---
+  "assessment.secondaryCta": {
+    en: "Not sure which AI system fits your business? Take the Free AI Business Assessment.",
+    es: "¿No sabes qué sistema de IA se adapta a tu negocio? Realiza la Evaluación Gratuita de Negocio con IA.",
+  },
+  "assessment.secondaryCta.link": { en: "Take the Free AI Business Assessment →", es: "Realiza la Evaluación Gratuita →" },
+
+  // --- Pricing clarification ---
+  "pricing.scopeClarification": {
+    en: "Starter pricing covers the scope shown. Additional integrations, locations, channels, users, advanced automation, or custom development may require a custom quote.",
+    es: "El precio inicial cubre el alcance mostrado. Integraciones adicionales, ubicaciones, canales, usuarios, automatización avanzada o desarrollo personalizado pueden requerir una cotización personalizada.",
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

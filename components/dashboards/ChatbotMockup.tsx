@@ -1,5 +1,6 @@
 import React from "react";
 import { LogoMark } from "../Logo";
+import { MockupLabel } from "../ui";
 
 export default function ChatbotMockup() {
   return (
@@ -69,6 +70,7 @@ export default function ChatbotMockup() {
             </div>
           </div>
         </div>
+        <MockupLabel />
       </div>
     </div>
   );

@@ -102,6 +102,18 @@ export function SectionHeading({
   );
 }
 
+// Subtle caption for the dashboard/product mockups scattered across the
+// site — those show sample metrics, names, and activity so visitors can
+// picture the finished system, not real customer data or verified results.
+// Kept small and low-contrast on purpose: a disclosure, not a distraction.
+export function MockupLabel({ children = "Illustrative System Preview" }: { children?: React.ReactNode }) {
+  return (
+    <p className="select-none border-t border-white/5 px-5 py-2 text-center text-[9px] font-medium uppercase tracking-wide text-silver-600">
+      {children}
+    </p>
+  );
+}
+
 export function Section({
   id,
   className = "",

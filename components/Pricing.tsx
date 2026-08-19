@@ -94,6 +94,10 @@ export default function Pricing() {
     <Section id="pricing">
       <SectionHeading eyebrow={t("pricing.eyebrow")} title={t("pricing.title")} description={t("pricing.description")} />
 
+      <p className="mx-auto mt-5 max-w-2xl text-center text-xs leading-relaxed text-silver-500">
+        {t("pricing.scopeClarification")}
+      </p>
+
       <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
         {packages.map((pkg) => (
           <GlassCard

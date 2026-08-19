@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { MockupLabel } from "../ui";
 
 /**
  * Shared visual treatment for service cards that don't have a bespoke,
@@ -36,6 +37,7 @@ export default function ServicePanelMockup({
           </div>
         ))}
       </div>
+      <MockupLabel />
     </div>
   );
 }

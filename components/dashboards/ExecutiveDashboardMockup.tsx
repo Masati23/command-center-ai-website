@@ -1,5 +1,6 @@
 import React from "react";
 import { LogoMark } from "../Logo";
+import { MockupLabel } from "../ui";
 
 function Bars() {
   const values = [40, 65, 50, 80, 60, 95, 70];
@@ -108,6 +109,7 @@ export default function ExecutiveDashboardMockup() {
             </div>
           </div>
         </div>
+        <MockupLabel />
       </div>
     </div>
   );

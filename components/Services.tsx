@@ -665,6 +665,14 @@ export default function Services() {
 
             <div>{service.visual}</div>
             </div>
+            {idx === 3 && (
+              <p className="mx-auto max-w-xl text-center text-sm text-silver-400">
+                {t("assessment.secondaryCta")}{" "}
+                <a href="/assessment" className="font-medium text-electric-400 hover:underline">
+                  {t("assessment.secondaryCta.link")}
+                </a>
+              </p>
+            )}
           </React.Fragment>
         ))}
       </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { MockupLabel } from "../ui";
 
 const days = ["S", "M", "T", "W", "T", "F", "S"];
 const dates = [26, 27, 28, 29, 30, 1, 2];
@@ -91,6 +92,7 @@ export default function BookingMockup() {
             ))}
           </div>
         </div>
+        <MockupLabel />
       </div>
     </div>
   );

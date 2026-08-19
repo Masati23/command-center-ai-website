@@ -1,4 +1,5 @@
 import React from "react";
+import { MockupLabel } from "../ui";
 
 const columns = [
   {
@@ -80,6 +81,7 @@ export default function CrmMockup() {
             Next automated follow-up scheduled in 2 hours
           </p>
         </div>
+        <MockupLabel />
       </div>
     </div>
   );

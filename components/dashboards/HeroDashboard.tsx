@@ -1,4 +1,5 @@
 import React from "react";
+import { MockupLabel } from "../ui";
 
 function MiniLineChart() {
   return (
@@ -88,6 +89,7 @@ export default function HeroDashboard() {
             </ul>
           </div>
         </div>
+        <MockupLabel />
       </div>
     </div>
   );

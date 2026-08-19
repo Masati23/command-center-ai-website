@@ -49,6 +49,13 @@ export default function Contact() {
     <Section id="contact">
       <SectionHeading eyebrow={t("contact.eyebrow")} title={t("contact.title")} description={t("contact.description")} />
 
+      <p className="mx-auto mt-6 max-w-xl text-center text-sm text-silver-400">
+        {t("assessment.secondaryCta")}{" "}
+        <a href="/assessment" className="font-medium text-electric-400 hover:underline">
+          {t("assessment.secondaryCta.link")}
+        </a>
+      </p>
+
       <div className="mt-16 grid grid-cols-1 gap-10 lg:grid-cols-5 lg:gap-16">
         {/* contact info */}
         <div className="lg:col-span-2">

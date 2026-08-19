@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
+import AfterPurchaseProcess from "@/components/AfterPurchaseProcess";
 import Pricing from "@/components/Pricing";
 import TrustSecurity from "@/components/TrustSecurity";
 import WhyChooseUs from "@/components/WhyChooseUs";
@@ -60,6 +61,7 @@ export default function Home() {
       <main>
         <Hero />
         <Services />
+        <AfterPurchaseProcess />
         <Pricing />
         <TrustSecurity />
         <WhyChooseUs />
