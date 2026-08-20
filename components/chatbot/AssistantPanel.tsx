@@ -37,12 +37,19 @@ interface AssistantPanelProps {
 }
 
 /**
- * The large "premium AI concierge" presentation layer. Everything
- * interactive here (messages, input, send, loading state) is owned and
- * driven by ChatWidget — this component only renders it larger and adds
- * the host visual, quick actions, and booking pane. The booking pane is
- * the exact same <ConsultationForm /> used on the homepage Contact
- * section — no second scheduling backend.
+ * The AI assistant panel's presentation layer. Everything interactive here
+ * (messages, input, send, loading state) is owned and driven by ChatWidget
+ * — this component only renders it, plus the host visual, quick actions,
+ * and a collapsible booking section. The booking section is the exact
+ * same <ConsultationForm /> used on the homepage Contact section — no
+ * second scheduling backend.
+ *
+ * Desktop: a compact floating panel anchored to the bottom-right, sized
+ * like a slightly-enlarged premium chatbot rather than a page takeover —
+ * the site stays visible behind it. Mobile: a near full-screen sheet,
+ * since there's no room for a floating widget on small viewports. One
+ * unified navy/electric palette throughout (chat + booking) instead of a
+ * light chat area bolted to a dark contact panel.
  */
 export default function AssistantPanel({
   open,
@@ -57,7 +64,7 @@ export default function AssistantPanel({
   onQuickAction,
 }: AssistantPanelProps) {
   const { t } = useLanguage();
-  const [mobileBookingOpen, setMobileBookingOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -75,6 +82,12 @@ export default function AssistantPanel({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
+
+  // Booking section stays collapsed until the visitor asks for it — it no
+  // longer occupies a permanent slice of the panel on every screen size.
+  useEffect(() => {
+    if (!open) setBookingOpen(false);
+  }, [open]);
 
   // ConsultationForm dispatches this on a successful submission — same
   // event whether it's rendered here or on the homepage Contact section,
@@ -94,9 +107,17 @@ export default function AssistantPanel({
   function handleQuickAction(action: QuickAction) {
     onQuickAction(action);
     if (action === "book") {
-      setMobileBookingOpen(true);
-      bookingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setBookingOpen(true);
+      requestAnimationFrame(() => bookingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
+  }
+
+  function toggleBooking() {
+    setBookingOpen((v) => {
+      const next = !v;
+      if (next) trackAssistantEvent("booking_opened", "toggle");
+      return next;
+    });
   }
 
   const quickActions: { key: QuickAction; label: string }[] = [
@@ -108,7 +129,7 @@ export default function AssistantPanel({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-navy-950/70 p-0 backdrop-blur-sm sm:p-4 md:p-8"
+      className="fixed inset-0 z-[70] flex items-end justify-end bg-navy-950/70 backdrop-blur-sm p-0 lg:bg-transparent lg:p-6 lg:backdrop-blur-none"
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
@@ -118,150 +139,129 @@ export default function AssistantPanel({
     >
       <div
         ref={panelRef}
-        className="animate-fadeUp flex h-full w-full flex-col overflow-hidden bg-white shadow-2xl sm:h-[88vh] sm:max-h-[860px] sm:w-[94vw] sm:max-w-6xl sm:rounded-3xl"
+        className="animate-fadeUp flex h-full w-full flex-col overflow-hidden bg-navy-900 shadow-2xl ring-1 ring-white/10 lg:h-[640px] lg:max-h-[82vh] lg:w-[400px] lg:rounded-3xl lg:shadow-glow"
       >
         {/* header */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-r from-electric-50 to-white px-5 py-4 sm:px-7">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-electric-500/15">
-              <LogoMark className="h-5 w-5" />
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-navy-900 px-5 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-electric-500/15">
+              <LogoMark className="h-4 w-4" />
             </div>
-            <p className="text-sm font-semibold text-navy-900">{copy.title}</p>
+            <p className="text-sm font-semibold text-white">{copy.title}</p>
           </div>
           <div className="flex items-center gap-2">
-            <LanguageToggle className="!bg-slate-100 !px-2.5 !py-1.5 !text-[11px] !text-navy-700 hover:!bg-slate-200 hover:!text-navy-900" />
+            <LanguageToggle className="!px-2.5 !py-1.5 !text-[11px]" />
             <button
               ref={closeButtonRef}
               onClick={onClose}
               aria-label={t("assistant.close")}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-navy-900"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-silver-400 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* body */}
-        <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-          {/* left: host + intro + quick actions + chat */}
-          <div className="flex flex-1 flex-col overflow-hidden lg:min-w-0">
-            <div className="shrink-0 border-b border-slate-100 px-5 py-6 text-center sm:px-8">
-              <AiHostVisual compact />
-              <h2 className="mt-4 text-lg font-semibold text-navy-900 sm:text-xl">{t("assistant.headline")}</h2>
-              <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-500">{copy.greeting}</p>
+        {/* body — one unified scroll column, no separate light/dark panes */}
+        <div className="flex flex-1 flex-col overflow-y-auto">
+          <div className="shrink-0 border-b border-white/5 px-5 py-5 text-center">
+            <AiHostVisual compact />
+            <h2 className="mt-3 text-base font-semibold text-white">{t("assistant.headline")}</h2>
+            <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-silver-400">{copy.greeting}</p>
 
-              <div className="mt-5 flex flex-wrap justify-center gap-2">
-                {quickActions.map((qa) => (
-                  <button
-                    key={qa.key}
-                    onClick={() => handleQuickAction(qa.key)}
-                    className="rounded-full border border-electric-200 bg-electric-50 px-4 py-2 text-xs font-medium text-electric-700 transition-colors hover:border-electric-400 hover:bg-electric-100"
-                  >
-                    {qa.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* chat conversation — same message list / input as the floating widget, just larger */}
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 px-5 py-5 sm:px-8">
-              <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm">
-                {copy.greeting}
-              </div>
-              {messages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
-                    m.role === "user"
-                      ? "ml-auto rounded-tr-sm bg-electric-600 text-white"
-                      : "rounded-tl-sm bg-white text-slate-700"
-                  }`}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {quickActions.map((qa) => (
+                <button
+                  key={qa.key}
+                  onClick={() => handleQuickAction(qa.key)}
+                  className="rounded-xl border border-electric-500/20 bg-electric-500/[0.08] px-3 py-2 text-[11.5px] font-medium leading-tight text-electric-300 transition-colors hover:border-electric-400/40 hover:bg-electric-500/15 hover:text-electric-200"
                 >
-                  <MessageContent
-                    text={m.content}
-                    linkClassName={
-                      m.role === "user"
-                        ? "font-medium text-white underline underline-offset-2"
-                        : "font-medium text-electric-600 underline underline-offset-2 hover:text-electric-700"
-                    }
-                  />
-                </div>
+                  {qa.label}
+                </button>
               ))}
-              {loading && (
-                <div className="flex items-center gap-1 rounded-2xl bg-white px-4 py-3 shadow-sm w-fit">
-                  <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-slate-400" />
-                  <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-slate-400 [animation-delay:0.15s]" />
-                  <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-slate-400 [animation-delay:0.3s]" />
-                </div>
-              )}
             </div>
+          </div>
 
-            <p className="shrink-0 border-t border-slate-100 bg-white px-5 pt-2.5 text-[10.5px] leading-tight text-slate-400 sm:px-8">
-              {copy.privacyNotice}
-            </p>
-
-            <form onSubmit={onSubmit} className="flex shrink-0 items-center gap-2.5 bg-white px-5 py-4 sm:px-8">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={copy.placeholder}
-                className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-navy-900 outline-none transition-colors placeholder-slate-400 focus:border-electric-400"
-              />
+          {/* collapsible booking — hidden until "Book a Consultation" is clicked, so it never dominates the panel */}
+          <div ref={bookingRef} className={`shrink-0 border-b border-white/5 ${bookingOpen ? "block" : "hidden"}`}>
+            <div className="flex items-center justify-between px-5 pt-4">
+              <div>
+                <p className="text-sm font-semibold text-white">{t("assistant.bookingTitle")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-silver-400">{t("assistant.bookingSubtitle")}</p>
+              </div>
               <button
-                type="submit"
-                disabled={loading}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-electric-500 to-electric-700 shadow-glow transition-transform hover:scale-105 disabled:opacity-50"
-                aria-label="Send"
+                type="button"
+                onClick={toggleBooking}
+                aria-label={t("assistant.close")}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-silver-400 transition-colors hover:bg-white/[0.06] hover:text-white"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                  <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
                 </svg>
               </button>
-            </form>
-          </div>
-
-          {/* right (desktop) / below (mobile): booking, beside the assistant */}
-          <div
-            ref={bookingRef}
-            className={`shrink-0 border-t border-slate-100 bg-navy-900 lg:w-[360px] lg:overflow-y-auto lg:border-l lg:border-t-0 ${
-              mobileBookingOpen ? "block" : "hidden lg:block"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() =>
-                setMobileBookingOpen((v) => {
-                  const next = !v;
-                  if (next) trackAssistantEvent("booking_opened", "mobile_accordion");
-                  return next;
-                })
-              }
-              className="flex w-full items-center justify-between px-5 py-4 text-left lg:hidden"
-              aria-expanded={mobileBookingOpen}
-            >
-              <span className="text-sm font-semibold text-white">{t("assistant.bookingTab")}</span>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                className={`transition-transform ${mobileBookingOpen ? "rotate-180" : ""}`}
-              >
-                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <div className={`px-5 pb-6 sm:px-6 ${mobileBookingOpen ? "block" : "hidden lg:block"}`}>
-              <p className="hidden text-sm font-semibold text-white lg:block">{t("assistant.bookingTitle")}</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-silver-400">{t("assistant.bookingSubtitle")}</p>
-              <div className="mt-4">
-                <ConsultationForm compact />
-              </div>
+            </div>
+            <div className="px-5 pb-5 pt-3">
+              <ConsultationForm compact />
             </div>
           </div>
+
+          {/* chat conversation */}
+          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-navy-950/40 px-5 py-4">
+            <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-navy-800 px-4 py-2.5 text-sm text-silver-100 shadow-sm">
+              {copy.greeting}
+            </div>
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
+                  m.role === "user"
+                    ? "ml-auto rounded-tr-sm bg-electric-600 text-white"
+                    : "rounded-tl-sm bg-navy-800 text-silver-100"
+                }`}
+              >
+                <MessageContent
+                  text={m.content}
+                  linkClassName={
+                    m.role === "user"
+                      ? "font-medium text-white underline underline-offset-2"
+                      : "font-medium text-electric-300 underline underline-offset-2 hover:text-electric-200"
+                  }
+                />
+              </div>
+            ))}
+            {loading && (
+              <div className="flex w-fit items-center gap-1 rounded-2xl bg-navy-800 px-4 py-3 shadow-sm">
+                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400" />
+                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400 [animation-delay:0.15s]" />
+                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400 [animation-delay:0.3s]" />
+              </div>
+            )}
+          </div>
+
+          <p className="shrink-0 border-t border-white/5 bg-navy-900 px-5 pt-2.5 text-[10.5px] leading-tight text-silver-500">
+            {copy.privacyNotice}
+          </p>
+
+          <form onSubmit={onSubmit} className="flex shrink-0 items-center gap-2.5 bg-navy-900 px-5 py-4">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={copy.placeholder}
+              className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder-silver-500 focus:border-electric-400/50"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-electric-500 to-electric-700 shadow-glow transition-transform hover:scale-105 disabled:opacity-50"
+              aria-label="Send"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
