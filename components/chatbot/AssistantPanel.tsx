@@ -144,9 +144,10 @@ export default function AssistantPanel({
     });
   }
 
+  // Only the two highest-intent actions — "Get an Overview" and "See
+  // Business Use Cases" were dropped on every screen size as repetitive
+  // with the intro line and the conversation itself.
   const quickActions: { key: QuickAction; label: string }[] = [
-    { key: "overview", label: t("assistant.quickActions.overview") },
-    { key: "useCases", label: t("assistant.quickActions.useCases") },
     { key: "audit", label: t("assistant.quickActions.audit") },
     { key: "book", label: t("assistant.quickActions.book") },
   ];
@@ -201,26 +202,22 @@ export default function AssistantPanel({
           {/* welcome / host — full block until the conversation starts, then
               collapses to a slim status bar so messages get the space back */}
           {conversationMode ? (
-            <div className="shrink-0 border-b border-white/5 px-5 py-2 lg:py-2.5">
+            <div className="shrink-0 border-b border-white/5 px-5 py-2">
               <AiHostVisual mini />
             </div>
           ) : (
-            <div className="shrink-0 border-b border-white/5 px-5 py-3 text-center lg:py-5">
+            <div className="shrink-0 border-b border-white/5 px-5 py-3 text-center">
               <AiHostVisual compact />
-              {/* full headline + greeting on desktop; a single short line on
-                  mobile, where every pixel of vertical space matters more */}
-              <h2 className="mt-3 hidden text-base font-semibold text-white lg:block">{t("assistant.headline")}</h2>
-              <p className="mx-auto mt-1.5 hidden max-w-xs text-xs leading-relaxed text-silver-400 lg:block">{copy.greeting}</p>
-              <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-silver-400 lg:hidden">
-                {t("assistant.mobileIntro")}
-              </p>
+              {/* One short intro line, same on every screen size — the
+                  header already names the assistant and the status pill
+                  already says it's online, so the old headline + long
+                  greeting paragraph were purely repetitive. */}
+              <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-silver-400">{t("assistant.intro")}</p>
             </div>
           )}
 
-          {/* quick actions — always visible, always above the conversation.
-              Mobile keeps only the two highest-intent actions (audit + book)
-              to save vertical space; desktop keeps all four. */}
-          <div className={`shrink-0 border-b border-white/5 px-5 ${conversationMode ? "py-2.5" : "py-2.5 lg:py-4"}`}>
+          {/* quick actions — always visible, always above the conversation */}
+          <div className="shrink-0 border-b border-white/5 px-5 py-2.5">
             <div className="grid grid-cols-2 gap-2">
               {quickActions.map((qa) => (
                 <button
@@ -228,7 +225,7 @@ export default function AssistantPanel({
                   onClick={() => handleQuickAction(qa.key)}
                   className={`rounded-xl border border-electric-500/20 bg-electric-500/[0.08] font-medium leading-tight text-electric-300 transition-colors hover:border-electric-400/40 hover:bg-electric-500/15 hover:text-electric-200 ${
                     conversationMode ? "px-2.5 py-1.5 text-[10.5px]" : "px-3 py-2 text-[11.5px]"
-                  } ${qa.key === "overview" || qa.key === "useCases" ? "hidden lg:block" : ""}`}
+                  }`}
                 >
                   {qa.label}
                 </button>

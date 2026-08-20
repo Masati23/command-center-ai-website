@@ -27,14 +27,14 @@ const copy = {
     title: "Command Center AI Assistant",
     // Adapted from the Command Center AI Academy chatbot's privacy notice
     // (same placement: a small line above the input box).
-    privacyNotice: "Please don't share passwords, payment card information (including CVV), Social Security numbers, API keys, or other private credentials. Conversations may be reviewed to improve our support and website.",
+    privacyNotice: "Please don't share passwords, payment information, or other sensitive data.",
   },
   es: {
     greeting: "¡Hola! Puedo responder preguntas sobre nuestros sistemas de IA, precios y cuál se adapta a tu negocio. ¿Qué te gustaría automatizar?",
     placeholder: "Escribe un mensaje…",
     unavailable: "Nuestro asistente de IA no está disponible temporalmente. Inténtalo de nuevo en un momento o solicita una consulta gratuita.",
     title: "Asistente de Command Center AI",
-    privacyNotice: "No compartas contraseñas, información de tarjetas de pago (incluyendo el CVV), números de seguro social, claves de API u otras credenciales privadas. Las conversaciones pueden revisarse para mejorar nuestro soporte y sitio web.",
+    privacyNotice: "No compartas contraseñas, información de pago ni otros datos sensibles.",
   },
 };
 

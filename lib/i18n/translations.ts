@@ -727,7 +727,7 @@ export const translations = {
     es: "Hola, puedo ayudarte a encontrar la automatización adecuada, responder preguntas, realizar tu Auditoría de Negocio con IA y agendar una consulta.",
   },
   "assistant.close": { en: "Close assistant", es: "Cerrar asistente" },
-  "assistant.mobileIntro": {
+  "assistant.intro": {
     en: "Tell me what you'd like to automate or improve in your business.",
     es: "Cuéntame qué te gustaría automatizar o mejorar en tu negocio.",
   },
