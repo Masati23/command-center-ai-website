@@ -65,6 +65,12 @@ export default function AssistantPanel({
 }: AssistantPanelProps) {
   const { t } = useLanguage();
   const [bookingOpen, setBookingOpen] = useState(false);
+  // "Conversation mode" — once the visitor clicks a quick action or sends
+  // their first message, the welcome block (host visual + headline +
+  // greeting paragraph) collapses down to a slim status bar so the actual
+  // message history gets the panel's real estate instead of getting
+  // squeezed into whatever was left over.
+  const [conversationMode, setConversationMode] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -85,9 +91,21 @@ export default function AssistantPanel({
 
   // Booking section stays collapsed until the visitor asks for it — it no
   // longer occupies a permanent slice of the panel on every screen size.
+  // Conversation mode resets too, so reopening the assistant later starts
+  // fresh on the full welcome layout again.
   useEffect(() => {
-    if (!open) setBookingOpen(false);
+    if (!open) {
+      setBookingOpen(false);
+      setConversationMode(false);
+    }
   }, [open]);
+
+  // Safety net — if messages ever exist (e.g. a quick action populated the
+  // conversation) make sure we're in conversation mode, regardless of how
+  // that happened.
+  useEffect(() => {
+    if (messages.length > 0) setConversationMode(true);
+  }, [messages.length]);
 
   // ConsultationForm dispatches this on a successful submission — same
   // event whether it's rendered here or on the homepage Contact section,
@@ -105,11 +123,17 @@ export default function AssistantPanel({
   if (!open) return null;
 
   function handleQuickAction(action: QuickAction) {
+    setConversationMode(true);
     onQuickAction(action);
     if (action === "book") {
       setBookingOpen(true);
       requestAnimationFrame(() => bookingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    if (input.trim()) setConversationMode(true);
+    onSubmit(e);
   }
 
   function toggleBooking() {
@@ -164,19 +188,47 @@ export default function AssistantPanel({
           </div>
         </div>
 
-        {/* body — one unified scroll column, no separate light/dark panes */}
-        <div className="flex flex-1 flex-col overflow-y-auto">
-          <div className="shrink-0 border-b border-white/5 px-5 py-5 text-center">
-            <AiHostVisual compact />
-            <h2 className="mt-3 text-base font-semibold text-white">{t("assistant.headline")}</h2>
-            <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-silver-400">{copy.greeting}</p>
+        {/*
+          body — a non-scrolling flex column. Every section here is
+          shrink-0 EXCEPT the message list, which is the only flex-1 (and
+          min-h-0, so flex actually lets it shrink to the space that's
+          left instead of pushing the input/privacy notice off-panel).
+          That's what gives messages their own dedicated, independently
+          scrollable area that can never render underneath the quick
+          actions or get clipped by the footer.
+        */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* welcome / host — full block until the conversation starts, then
+              collapses to a slim status bar so messages get the space back */}
+          {conversationMode ? (
+            <div className="shrink-0 border-b border-white/5 px-5 py-2 lg:py-2.5">
+              <AiHostVisual mini />
+            </div>
+          ) : (
+            <div className="shrink-0 border-b border-white/5 px-5 py-3 text-center lg:py-5">
+              <AiHostVisual compact />
+              {/* full headline + greeting on desktop; a single short line on
+                  mobile, where every pixel of vertical space matters more */}
+              <h2 className="mt-3 hidden text-base font-semibold text-white lg:block">{t("assistant.headline")}</h2>
+              <p className="mx-auto mt-1.5 hidden max-w-xs text-xs leading-relaxed text-silver-400 lg:block">{copy.greeting}</p>
+              <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-silver-400 lg:hidden">
+                {t("assistant.mobileIntro")}
+              </p>
+            </div>
+          )}
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
+          {/* quick actions — always visible, always above the conversation.
+              Mobile keeps only the two highest-intent actions (audit + book)
+              to save vertical space; desktop keeps all four. */}
+          <div className={`shrink-0 border-b border-white/5 px-5 ${conversationMode ? "py-2.5" : "py-2.5 lg:py-4"}`}>
+            <div className="grid grid-cols-2 gap-2">
               {quickActions.map((qa) => (
                 <button
                   key={qa.key}
                   onClick={() => handleQuickAction(qa.key)}
-                  className="rounded-xl border border-electric-500/20 bg-electric-500/[0.08] px-3 py-2 text-[11.5px] font-medium leading-tight text-electric-300 transition-colors hover:border-electric-400/40 hover:bg-electric-500/15 hover:text-electric-200"
+                  className={`rounded-xl border border-electric-500/20 bg-electric-500/[0.08] font-medium leading-tight text-electric-300 transition-colors hover:border-electric-400/40 hover:bg-electric-500/15 hover:text-electric-200 ${
+                    conversationMode ? "px-2.5 py-1.5 text-[10.5px]" : "px-3 py-2 text-[11.5px]"
+                  } ${qa.key === "overview" || qa.key === "useCases" ? "hidden lg:block" : ""}`}
                 >
                   {qa.label}
                 </button>
@@ -207,8 +259,10 @@ export default function AssistantPanel({
             </div>
           </div>
 
-          {/* chat conversation */}
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-navy-950/40 px-5 py-4">
+          {/* chat conversation — the only flex-1 in this column, so it's the
+              only thing that grows/shrinks to fill remaining space and
+              scroll on its own */}
+          <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-navy-950/40 px-5 py-4">
             <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-navy-800 px-4 py-2.5 text-sm text-silver-100 shadow-sm">
               {copy.greeting}
             </div>
@@ -244,7 +298,7 @@ export default function AssistantPanel({
             {copy.privacyNotice}
           </p>
 
-          <form onSubmit={onSubmit} className="flex shrink-0 items-center gap-2.5 bg-navy-900 px-5 py-4">
+          <form onSubmit={handleSubmit} className="flex shrink-0 items-center gap-2.5 bg-navy-900 px-5 py-4">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}

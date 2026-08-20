@@ -727,6 +727,10 @@ export const translations = {
     es: "Hola, puedo ayudarte a encontrar la automatización adecuada, responder preguntas, realizar tu Auditoría de Negocio con IA y agendar una consulta.",
   },
   "assistant.close": { en: "Close assistant", es: "Cerrar asistente" },
+  "assistant.mobileIntro": {
+    en: "Tell me what you'd like to automate or improve in your business.",
+    es: "Cuéntame qué te gustaría automatizar o mejorar en tu negocio.",
+  },
   "assistant.quickActions.overview": { en: "Get an Overview", es: "Ver una Descripción General" },
   "assistant.quickActions.useCases": { en: "See Business Use Cases", es: "Ver Casos de Uso" },
   "assistant.quickActions.audit": { en: "Take the AI Business Audit", es: "Realizar la Auditoría de IA" },
