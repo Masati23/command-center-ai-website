@@ -1,12 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogoMark } from "@/components/Logo";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import LanguageToggle from "@/components/LanguageToggle";
+import AssistantPanel, { type QuickAction } from "./AssistantPanel";
+import { trackAssistantEvent } from "./track";
 
 const SESSION_KEY = "cc_chat_session_id";
+// Session-only (not localStorage) so the assistant can auto-open again on
+// a fresh visit later, but never more than once within the same browser
+// session/tab — exactly the "once per session" behavior requested.
+const AUTO_OPEN_KEY = "cc_assistant_auto_opened";
+const AUTO_OPEN_DELAY_MS = 4000; // within the requested 3–5s window
 
 interface Message {
   role: "user" | "assistant";
@@ -32,58 +38,30 @@ const copy = {
   },
 };
 
-// The chatbot is instructed to include real section URLs (e.g.
-// https://www.commandcenterai.net/#ai-website-chatbot) when recommending a
-// service — this turns those URLs into actual clickable links instead of
-// inert text, satisfying "provide a clickable link... to the exact service
-// section." Splits on a simple URL pattern; everything else renders as-is.
-//
-// The model sometimes wraps links in markdown syntax — "[label](url)" —
-// even though the prompt just asks for plain text. A naive "match until
-// whitespace" regex sweeps the closing ")" into the URL itself, which
-// silently breaks the anchor: "#ai-appointment-booking)" matches no real
-// element id, so the link renders but the scroll-to-section never
-// happens. Trimming trailing punctuation off the matched URL (and
-// rendering it back as plain text right after the link) fixes this
-// regardless of how the model formats the link.
-const URL_SPLIT_PATTERN = /(https?:\/\/[^\s]+)/g;
-const URL_TEST_PATTERN = /^https?:\/\//;
-const TRAILING_PUNCTUATION_PATTERN = /[)\]}>,.;:!?"']+$/;
-
-function splitTrailingPunctuation(url: string): [string, string] {
-  const match = url.match(TRAILING_PUNCTUATION_PATTERN);
-  if (!match) return [url, ""];
-  return [url.slice(0, -match[0].length), match[0]];
-}
-
-function MessageContent({ text }: { text: string }) {
-  const parts = text.split(URL_SPLIT_PATTERN);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (!URL_TEST_PATTERN.test(part)) return <React.Fragment key={i}>{part}</React.Fragment>;
-        const [cleanUrl, trailing] = splitTrailingPunctuation(part);
-        return (
-          <React.Fragment key={i}>
-            <a href={cleanUrl} className="font-medium text-electric-300 underline underline-offset-2 hover:text-electric-200">
-              {cleanUrl}
-            </a>
-            {trailing}
-          </React.Fragment>
-        );
-      })}
-    </>
-  );
-}
+// Preset prompts for the panel's quick-action buttons — reuse the exact
+// same sendMessage() path as anything the visitor types themselves, so
+// the chatbot backend, knowledge base, and analytics all behave
+// identically regardless of how the message originated.
+const quickActionPrompts: Record<Exclude<QuickAction, "audit" | "book">, { en: string; es: string }> = {
+  overview: {
+    en: "Can you give me a quick overview of what Command Center AI offers?",
+    es: "¿Puedes darme una descripción general de lo que ofrece Command Center AI?",
+  },
+  useCases: {
+    en: "What are some real business use cases for your AI systems?",
+    es: "¿Cuáles son algunos casos de uso reales de negocio para tus sistemas de IA?",
+  },
+};
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const { language } = useLanguage(); // shared with the single site-wide language button
+  const { language, t } = useLanguage(); // shared with the single site-wide language button
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // usePathname (not useSearchParams) so this never forces the page out of
   // static rendering — same reasoning as VisitorTracker.tsx. The industry
@@ -115,11 +93,43 @@ export default function ChatWidget() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open]);
 
-  async function sendMessage(e: React.FormEvent) {
-    e.preventDefault();
-    if (!input.trim() || !sessionId || loading) return;
+  // Auto-open 3–5s after landing, once per browser session, and never
+  // re-triggers after the visitor closes it — sessionStorage flag is set
+  // the moment the timer fires (not on close), so a visitor who never
+  // even saw it still won't get a second popup later in the same tab.
+  // The normal launcher button below stays available regardless.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem(AUTO_OPEN_KEY)) return;
 
-    const userMessage = input.trim();
+    const timer = setTimeout(() => {
+      sessionStorage.setItem(AUTO_OPEN_KEY, "1");
+      setOpen(true);
+      trackAssistantEvent("assistant_auto_open");
+    }, AUTO_OPEN_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  function closeAssistant() {
+    setOpen(false);
+    trackAssistantEvent("assistant_closed");
+  }
+
+  function toggleAssistant() {
+    setOpen((v) => {
+      const next = !v;
+      if (!next) trackAssistantEvent("assistant_closed");
+      return next;
+    });
+  }
+
+  async function sendMessage(e: React.FormEvent | null, overrideMessage?: string) {
+    e?.preventDefault();
+    const outgoing = (overrideMessage ?? input).trim();
+    if (!outgoing || !sessionId || loading) return;
+
+    const userMessage = outgoing;
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setInput("");
     setLoading(true);
@@ -147,81 +157,42 @@ export default function ChatWidget() {
     }
   }
 
+  function handleQuickAction(action: QuickAction) {
+    trackAssistantEvent("quick_action_clicked", action);
+
+    if (action === "audit") {
+      setOpen(false); // navigating away — don't leave the panel rendered open on the next page
+      router.push("/assessment");
+      return;
+    }
+    if (action === "book") {
+      trackAssistantEvent("booking_opened", "quick_action");
+      return; // AssistantPanel itself reveals/scrolls to the booking pane
+    }
+
+    const prompt = quickActionPrompts[action][language];
+    sendMessage(null, prompt);
+  }
+
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {open && (
-        <div className="mb-3 flex h-[28rem] w-[22rem] flex-col overflow-hidden rounded-2xl border border-electric-500/40 bg-navy-800 shadow-card">
-          <div className="flex items-center justify-between gap-2.5 bg-navy-900 px-4 py-3">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-electric-500/20">
-                <LogoMark className="h-4 w-4" />
-              </div>
-              <p className="text-xs font-semibold text-white">{copy[language].title}</p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <LanguageToggle className="!px-2 !py-1 !text-[10px]" />
-              <button onClick={() => setOpen(false)} className="ml-1 text-silver-400 hover:text-white" aria-label="Close chat">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div ref={scrollRef} className="flex-1 space-y-2.5 overflow-y-auto bg-navy-800 px-4 py-4">
-            <div className="max-w-[85%] rounded-xl rounded-tl-sm bg-navy-700 px-3 py-2 text-[12px] text-silver-200">
-              {copy[language].greeting}
-            </div>
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`max-w-[85%] rounded-xl px-3 py-2 text-[12px] ${
-                  m.role === "user"
-                    ? "ml-auto rounded-tr-sm bg-electric-600 text-white"
-                    : "rounded-tl-sm bg-navy-700 text-silver-200"
-                }`}
-              >
-                <MessageContent text={m.content} />
-              </div>
-            ))}
-            {loading && (
-              <div className="flex items-center gap-1 pl-1">
-                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400" />
-                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400 [animation-delay:0.15s]" />
-                <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-silver-400 [animation-delay:0.3s]" />
-              </div>
-            )}
-          </div>
-
-          <p className="border-t border-white/10 bg-navy-900 px-3 pt-2 text-[10px] leading-tight text-silver-500">
-            {copy[language].privacyNotice}
-          </p>
-
-          <form onSubmit={sendMessage} className="flex items-center gap-2 bg-navy-900 px-3 py-2.5">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={copy[language].placeholder}
-              className="flex-1 rounded-full border border-white/10 bg-navy-700 px-3 py-2 text-[12px] text-white outline-none placeholder-silver-400"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-electric-500 disabled:opacity-50"
-              aria-label="Send"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </form>
-        </div>
-      )}
+      <AssistantPanel
+        open={open}
+        onClose={closeAssistant}
+        copy={copy[language]}
+        messages={messages}
+        input={input}
+        setInput={setInput}
+        onSubmit={sendMessage}
+        loading={loading}
+        scrollRef={scrollRef}
+        onQuickAction={handleQuickAction}
+      />
 
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggleAssistant}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-electric-500 to-electric-700 shadow-glow transition-transform hover:scale-105"
-        aria-label="Open chat"
+        aria-label={open ? copy[language].title : t("assistant.launcherLabel")}
       >
         {open ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">

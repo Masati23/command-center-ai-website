@@ -719,6 +719,26 @@ export const translations = {
     en: "Starter pricing covers the scope shown. Additional integrations, locations, channels, users, advanced automation, or custom development may require a custom quote.",
     es: "El precio inicial cubre el alcance mostrado. Integraciones adicionales, ubicaciones, canales, usuarios, automatización avanzada o desarrollo personalizado pueden requerir una cotización personalizada.",
   },
+
+  // --- Large AI Assistant panel ---
+  "assistant.headline": { en: "Meet Your Command Center AI Assistant", es: "Conoce a tu Asistente de Command Center AI" },
+  "assistant.greeting": {
+    en: "Hi, I can help you find the right automation, answer questions, run your AI Business Audit, and book a consultation.",
+    es: "Hola, puedo ayudarte a encontrar la automatización adecuada, responder preguntas, realizar tu Auditoría de Negocio con IA y agendar una consulta.",
+  },
+  "assistant.close": { en: "Close assistant", es: "Cerrar asistente" },
+  "assistant.quickActions.overview": { en: "Get an Overview", es: "Ver una Descripción General" },
+  "assistant.quickActions.useCases": { en: "See Business Use Cases", es: "Ver Casos de Uso" },
+  "assistant.quickActions.audit": { en: "Take the AI Business Audit", es: "Realizar la Auditoría de IA" },
+  "assistant.quickActions.book": { en: "Book a Consultation", es: "Agendar una Consulta" },
+  "assistant.chatTab": { en: "Chat", es: "Chat" },
+  "assistant.bookingTab": { en: "Book a Consultation", es: "Agendar una Consulta" },
+  "assistant.bookingTitle": { en: "Book Your Free AI Consultation", es: "Agenda tu Consulta Gratuita de IA" },
+  "assistant.bookingSubtitle": {
+    en: "Tell us a bit about your business — the same team that answers here will follow up.",
+    es: "Cuéntanos un poco sobre tu negocio — el mismo equipo que responde aquí te dará seguimiento.",
+  },
+  "assistant.launcherLabel": { en: "Chat with Command Center AI", es: "Chatea con Command Center AI" },
 } as const;
 
 export type TranslationKey = keyof typeof translations;

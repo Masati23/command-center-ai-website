@@ -108,7 +108,7 @@ export function SectionHeading({
 // Kept small and low-contrast on purpose: a disclosure, not a distraction.
 export function MockupLabel({ children = "Illustrative System Preview" }: { children?: React.ReactNode }) {
   return (
-    <p className="select-none border-t border-white/5 px-5 py-2 text-center text-[9px] font-medium uppercase tracking-wide text-silver-600">
+    <p className="select-none border-t border-white/5 px-5 py-2 text-center text-[9px] font-medium uppercase tracking-wide text-silver-500/70">
       {children}
     </p>
   );

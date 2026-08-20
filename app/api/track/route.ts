@@ -12,7 +12,18 @@ export const dynamic = "force-dynamic";
 // business-specific interactions tied to a product, stored in the existing
 // EventLog table and read back by the Service Interest and Overview admin
 // pages. No visitor identity is captured here, intentionally.
-const VALID_TYPES = ["buy_click", "consult_click"] as const;
+const VALID_TYPES = [
+  "buy_click",
+  "consult_click",
+  // AI assistant panel events (upgrade of the existing chatbot's
+  // presentation layer — same EventLog table, same admin reporting
+  // pipeline, just a few additional event types).
+  "assistant_auto_open",
+  "assistant_closed",
+  "quick_action_clicked",
+  "booking_opened",
+  "booking_completed",
+] as const;
 
 const bodySchema = z.object({
   type: z.enum(VALID_TYPES),

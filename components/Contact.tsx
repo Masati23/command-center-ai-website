@@ -1,49 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Section, SectionHeading, GlassCard, Button } from "./ui";
+import React from "react";
+import { Section, SectionHeading, GlassCard } from "./ui";
+import ConsultationForm from "./ConsultationForm";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-type Status = "idle" | "loading" | "success" | "error";
-
 export default function Contact() {
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const { t, language } = useLanguage();
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setStatus("loading");
-    setErrorMsg("");
-
-    const form = e.currentTarget;
-    const data = {
-      name: (form.elements.namedItem("name") as HTMLInputElement).value,
-      email: (form.elements.namedItem("email") as HTMLInputElement).value,
-      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
-      company: (form.elements.namedItem("company") as HTMLInputElement).value,
-      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
-      website: (form.elements.namedItem("website") as HTMLInputElement).value,
-      language,
-    };
-
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || t("contact.form.errorGeneric"));
-      }
-      setStatus("success");
-      form.reset();
-    } catch (err: any) {
-      setStatus("error");
-      setErrorMsg(err.message || t("contact.form.errorGeneric"));
-    }
-  }
+  const { t } = useLanguage();
 
   return (
     <Section id="contact">
@@ -93,95 +56,7 @@ export default function Contact() {
         {/* form */}
         <div className="lg:col-span-3">
           <GlassCard className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Honeypot — hidden from real visitors via CSS (not type="hidden",
-                  which bots specifically know to skip), invisible to screen
-                  readers via aria-hidden + tabIndex, never rendered visibly. */}
-              <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
-                <label htmlFor="website">Website</label>
-                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    {t("contact.form.name")}
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder={t("contact.form.namePlaceholder")}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    {t("contact.form.email")}
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder="you@company.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    {t("contact.form.phone")}
-                  </label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder="(555) 555-5555"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="company" className="mb-1.5 block text-xs font-medium text-silver-400">
-                    {t("contact.form.company")}
-                  </label>
-                  <input
-                    id="company"
-                    name="company"
-                    type="text"
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                    placeholder={t("contact.form.companyPlaceholder")}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="message" className="mb-1.5 block text-xs font-medium text-silver-400">
-                  {t("contact.form.message")}
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  required
-                  rows={4}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-silver-500 outline-none transition-colors focus:border-electric-500/50"
-                  placeholder={t("contact.form.messagePlaceholder")}
-                />
-              </div>
-
-              <Button type="submit" variant="primary" className="w-full">
-                {status === "loading" ? t("contact.form.sending") : t("contact.form.submit")}
-              </Button>
-              <p className="text-center text-xs text-silver-500">{t("hero.trustLine")}</p>
-
-              {status === "success" && (
-                <p className="text-center text-sm font-medium text-electric-400">{t("contact.form.success")}</p>
-              )}
-              {status === "error" && <p className="text-center text-sm font-medium text-red-400">{errorMsg}</p>}
-            </form>
+            <ConsultationForm />
           </GlassCard>
         </div>
       </div>
