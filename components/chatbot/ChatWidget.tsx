@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LogoMark } from "@/components/Logo";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import AssistantPanel, { type QuickAction } from "./AssistantPanel";
 import { trackAssistantEvent } from "./track";
@@ -199,7 +198,13 @@ export default function ChatWidget() {
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
           </svg>
         ) : (
-          <LogoMark className="h-7 w-7" />
+          // Same thinking/chat-bubble icon as the Command Center AI Academy
+          // launcher — communicates "chat with the AI" more clearly than
+          // the scope/bullseye logo did. Closed-state icon only; the open
+          // (X) state above is unchanged.
+          <span className="text-2xl leading-none" aria-hidden="true">
+            💬
+          </span>
         )}
       </button>
     </div>
