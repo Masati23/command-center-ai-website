@@ -12,7 +12,7 @@ import { breadcrumbJsonLd, faqPageJsonLd, serviceJsonLd, SITE_URL } from "@/lib/
 // value falls back to the generic multi-industry version below rather than
 // 404ing, so a mistyped or old campaign link still lands on a working page.
 // -----------------------------------------------------------------------
-type IndustrySlug = "property-management" | "auto-repair" | "electrical-contractors";
+type IndustrySlug = "property-management" | "auto-repair" | "electrical-contractors" | "hvac";
 
 interface IndustryContent {
   slug: IndustrySlug;
@@ -63,6 +63,20 @@ const INDUSTRIES: Record<IndustrySlug, IndustryContent> = {
       "Callback requests",
       "After-hours leads",
       "Quote follow-up opportunities",
+    ],
+  },
+  hvac: {
+    slug: "hvac",
+    label: "HVAC Companies",
+    badge: "Built for HVAC Companies",
+    heroNote:
+      "A no-heat or no-cool call is urgent — if nobody answers, that customer is usually already calling the next HVAC company on their list.",
+    examples: [
+      "Missed calls during service calls",
+      "After-hours emergency requests",
+      "New appointment requests",
+      "Maintenance & tune-up scheduling",
+      "Estimate and quote follow-up",
     ],
   },
 };
@@ -300,9 +314,9 @@ export default function MissedCallFixPage({
           <SectionHeading
             eyebrow="Who It's For"
             title="Built around how your industry actually works"
-            description="We're starting with three focus industries where missed calls and slow follow-up have a direct, measurable cost."
+            description="We're starting with a few focus industries where missed calls and slow follow-up have a direct, measurable cost."
           />
-          <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-3">
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {Object.values(INDUSTRIES).map((ind) => (
               <GlassCard
                 key={ind.slug}
