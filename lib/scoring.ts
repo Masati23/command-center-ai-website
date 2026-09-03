@@ -128,7 +128,7 @@ function scoreIntegrationComplexity(a: FullAssessmentAnswers): number {
   const si = a.softwareIntegrations;
   let score = 10;
   if (si) {
-    score += Math.min(si.systemsInUse.length * 6, 42); // more systems = more integration surface
+    score += Math.min((si.systemsInUse?.length ?? 0) * 6, 42); // more systems = more integration surface
     score += si.multiLocation ? 15 : 0;
     score += si.multiUser ? 8 : 0;
     score += si.needsPermissions ? 8 : 0;
@@ -138,7 +138,7 @@ function scoreIntegrationComplexity(a: FullAssessmentAnswers): number {
   }
   const ops = a.operationsAutomation;
   if (ops) {
-    score += Math.min(ops.processesToImprove.length * 3, 24);
+    score += Math.min((ops.processesToImprove?.length ?? 0) * 3, 24);
   }
   return clamp(score);
 }
@@ -150,7 +150,7 @@ function deriveComplexityTier(a: FullAssessmentAnswers, integrationComplexitySco
   // Hard "custom" triggers — highly-customized scope that shouldn't get an
   // instant fixed price no matter how the weighted score comes out.
   const customTriggers =
-    (si?.systemsInUse.length ?? 0) >= 6 ||
+    (si?.systemsInUse?.length ?? 0) >= 6 ||
     (si?.needsDataMigration && si?.needsCustomDashboards) ||
     locationCount >= 4;
 
