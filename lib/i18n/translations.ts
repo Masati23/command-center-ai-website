@@ -41,7 +41,16 @@ export const translations = {
   },
   "services.getStarted": { en: "Free AI Consultation", es: "Consulta Gratuita de IA" },
   "services.buyStarterPackage": { en: "Buy Starter Package", es: "Comprar Paquete Inicial" },
-  "services.subscribeMonthly": { en: "Subscribe Monthly", es: "Suscribirse Mensualmente" },
+  "services.buyWithSupport": {
+    en: "Buy Starter Package + Monthly Support",
+    es: "Comprar Paquete Inicial + Soporte Mensual",
+  },
+  "services.addMonthlySupport": { en: "Add Monthly Support", es: "Añadir Soporte Mensual" },
+  "services.recurringLabel": { en: "(recurring)", es: "(recurrente)" },
+  "services.combinedChargeNote": {
+    en: "Today you'll be charged the one-time setup fee plus your first month of support. After that, only the monthly support fee will recur each month until canceled.",
+    es: "Hoy se te cobrará la tarifa única de configuración más tu primer mes de soporte. Después de eso, solo la tarifa de soporte mensual se repetirá cada mes hasta que se cancele.",
+  },
   "services.freeConsultationQuote": {
     en: "Free Consultation / Custom Quote",
     es: "Consulta Gratuita / Cotización Personalizada",

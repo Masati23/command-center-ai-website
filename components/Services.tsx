@@ -131,12 +131,6 @@ interface Service {
   visual: React.ReactNode;
   checkoutMode: CheckoutMode;
   additionalCostKey?: TranslationKey;
-  // Only set for the 2 services that also have a real, fixed recurring
-  // subscription price (distinct from monthlySupportPrice, which is just
-  // display text everywhere else). Renders a second "Subscribe Monthly"
-  // button wired to mode:"subscription" checkout, alongside the one-time
-  // setup-fee Buy button - never instead of it.
-  monthlySubscriptionAvailable?: boolean;
   // Renders a small eyebrow + intro directly above this card — used once,
   // on the first Website Development entry, to visually separate it from
   // the AI Solutions catalog above without a second page section.
@@ -161,7 +155,6 @@ const services: Service[] = [
     ],
     visual: <ChatbotMockup />,
     checkoutMode: "buy",
-    monthlySubscriptionAvailable: true,
   },
   {
     tag: "Service 02",
@@ -179,7 +172,6 @@ const services: Service[] = [
     ],
     visual: <BookingMockup />,
     checkoutMode: "buy",
-    monthlySubscriptionAvailable: true,
   },
   {
     tag: "Service 03",
@@ -498,11 +490,12 @@ const services: Service[] = [
 
 export default function Services() {
   const { t } = useLanguage();
-  // Keyed by `${productSlug}:onetime` or `${productSlug}:monthly` — the two
-  // services with a real recurring plan render two independent buttons, so
-  // a single per-slug key would make clicking one button show the other's
-  // loading/error state.
   const [buyState, setBuyState] = useState<Record<string, "idle" | "loading" | "error">>({});
+  // Per-service "Add Monthly Support" checkbox state — OFF by default for
+  // every service, per spec. Purely a client-side selection; the server
+  // independently re-validates the slug and looks up the real
+  // monthlySupport amount itself (never trusts a client-sent price).
+  const [supportSelected, setSupportSelected] = useState<Record<string, boolean>>({});
 
   // Still best-effort (a tracking failure should never affect the actual
   // button action), but this used to be a plain, un-awaited fetch — which
@@ -514,7 +507,7 @@ export default function Services() {
   // guarantees delivery without blocking navigation, so there's no added
   // checkout delay. Falls back to a keepalive fetch for the rare browser
   // without sendBeacon support (still best-effort, not awaited).
-  function track(type: "buy_click" | "buy_click_monthly" | "consult_click", productSlug: string) {
+  function track(type: "buy_click" | "consult_click", productSlug: string) {
     const payload = JSON.stringify({ type, productSlug });
     if (typeof navigator !== "undefined" && navigator.sendBeacon) {
       const blob = new Blob([payload], { type: "application/json" });
@@ -529,22 +522,22 @@ export default function Services() {
     }).catch(() => {});
   }
 
-  async function handleBuy(productSlug: string, billingType: "onetime" | "monthly" = "onetime") {
-    const key = `${productSlug}:${billingType}`;
-    track(billingType === "monthly" ? "buy_click_monthly" : "buy_click", productSlug);
-    setBuyState((s) => ({ ...s, [key]: "loading" }));
+  async function handleBuy(productSlug: string) {
+    const includeMonthlySupport = !!supportSelected[productSlug];
+    track("buy_click", productSlug);
+    setBuyState((s) => ({ ...s, [productSlug]: "loading" }));
     try {
       const res = await fetch("/api/checkout/direct-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(billingType === "monthly" ? { productSlug, billingType } : { productSlug }),
+        body: JSON.stringify({ productSlug, includeMonthlySupport }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
       window.location.href = data.url;
     } catch (err) {
       console.error("Buy Starter Package failed:", err);
-      setBuyState((s) => ({ ...s, [key]: "error" }));
+      setBuyState((s) => ({ ...s, [productSlug]: "error" }));
     }
   }
 
@@ -611,27 +604,41 @@ export default function Services() {
                 <p className="mt-2 text-xs leading-relaxed text-electric-400">{t("services.consultOnlyNote")}</p>
               )}
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {/* Optional recurring monthly support add-on. OFF by default.
+                  This is never a standalone purchase — it only ever rides
+                  along with the one-time setup purchase below. Shown only
+                  for services that both accept direct purchase and have a
+                  real fixed monthlySupportPrice (the two Website Development
+                  packages have neither, so no checkbox renders for them). */}
+              {service.checkoutMode === "buy" && service.monthlySupportPrice && (
+                <label className="mt-5 flex cursor-pointer items-start gap-2.5 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-sm text-silver-300">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={!!supportSelected[service.productSlug]}
+                    onChange={(e) =>
+                      setSupportSelected((s) => ({ ...s, [service.productSlug]: e.target.checked }))
+                    }
+                  />
+                  <span>
+                    {t("services.addMonthlySupport")} — {service.monthlySupportPrice} {t("services.recurringLabel")}
+                  </span>
+                </label>
+              )}
+              {supportSelected[service.productSlug] && (
+                <p className="mt-2 text-xs leading-relaxed text-electric-400">
+                  {t("services.combinedChargeNote")}
+                </p>
+              )}
+
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {service.checkoutMode === "buy" && (
-                  <Button
-                    type="button"
-                    variant="primary"
-                    onClick={() => handleBuy(service.productSlug, "onetime")}
-                  >
-                    {buyState[`${service.productSlug}:onetime`] === "loading"
+                  <Button type="button" variant="primary" onClick={() => handleBuy(service.productSlug)}>
+                    {buyState[service.productSlug] === "loading"
                       ? t("services.buyProcessing")
-                      : t("services.buyStarterPackage")}
-                  </Button>
-                )}
-                {service.checkoutMode === "buy" && service.monthlySubscriptionAvailable && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => handleBuy(service.productSlug, "monthly")}
-                  >
-                    {buyState[`${service.productSlug}:monthly`] === "loading"
-                      ? t("services.buyProcessing")
-                      : t("services.subscribeMonthly")}
+                      : supportSelected[service.productSlug]
+                        ? t("services.buyWithSupport")
+                        : t("services.buyStarterPackage")}
                   </Button>
                 )}
                 <Button
@@ -642,10 +649,7 @@ export default function Services() {
                   {t("services.freeConsultationQuote")}
                 </Button>
               </div>
-              {buyState[`${service.productSlug}:onetime`] === "error" && (
-                <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
-              )}
-              {buyState[`${service.productSlug}:monthly`] === "error" && (
+              {buyState[service.productSlug] === "error" && (
                 <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
               )}
               {service.productSlug === "ai-voice-receptionist-phone-agent" && (

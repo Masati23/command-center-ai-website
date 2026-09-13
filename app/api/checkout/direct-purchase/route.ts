@@ -10,16 +10,11 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   productSlug: z.string().min(1),
-  billingType: z.enum(["onetime", "monthly"]).optional().default("onetime"),
+  // Client only sends a boolean — never a price. The server is the sole
+  // source of truth for both the one-time basePrice and the recurring
+  // monthlySupport amount, both read fresh from the Product row below.
+  includeMonthlySupport: z.boolean().optional().default(false),
 });
-
-// Server-side allowlist for the recurring "Subscribe Monthly" path — kept
-// deliberately narrow. These are the only two services with a real, fixed
-// recurring monthlySupport price backing them; every other product's
-// monthlySupport figure is "starting at" display text, not a chargeable
-// amount, so it must never be reachable via billingType:"monthly" even if a
-// client sent it.
-const MONTHLY_SUBSCRIPTION_ALLOWLIST = new Set(["ai-website-chatbot", "ai-appointment-booking"]);
 
 /**
  * "Buy Starter Package" — a one-click purchase path for the fixed-price
@@ -59,58 +54,70 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Product not found or not available for purchase." }, { status: 404 });
   }
 
-  const isMonthly = parsed.data.billingType === "monthly";
+  const wantsSupport = parsed.data.includeMonthlySupport;
 
-  if (isMonthly && !MONTHLY_SUBSCRIPTION_ALLOWLIST.has(product.slug)) {
+  if (wantsSupport && (product.monthlySupport == null || product.monthlySupport <= 0)) {
     return NextResponse.json(
-      { error: "This service does not have a recurring subscription purchase option." },
-      { status: 400 }
-    );
-  }
-
-  if (isMonthly && (product.monthlySupport == null || product.monthlySupport <= 0)) {
-    return NextResponse.json(
-      { error: "This service does not have a fixed recurring price configured." },
+      { error: "This service does not have a monthly support option." },
       { status: 400 }
     );
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const source = isMonthly ? "direct_purchase_monthly" : "direct_purchase";
+  const source = wantsSupport ? "direct_purchase_with_support" : "direct_purchase";
+
+  // The one-time setup line item is identical in both paths — same
+  // product_data name/description/tax_code as the original one-time-only
+  // flow. When support is included, mode switches to "subscription" and a
+  // SECOND line item is added for the recurring price. Critically, the
+  // recurring `price_data.unit_amount` below is `product.monthlySupport`
+  // ONLY — the setup fee is never folded into it. Stripe treats a
+  // subscription-mode line item with no `recurring` block as a one-time
+  // invoice item that bills once, on the subscription's first invoice, and
+  // never again; the Subscription object's own recurring Price is only the
+  // monthlySupport line. Future renewal invoices (billing_reason:
+  // "subscription_cycle") therefore only ever charge product.monthlySupport
+  // — the one-time setup fee cannot recur through this path.
+  const setupLineItem = {
+    price_data: {
+      currency: "usd" as const,
+      unit_amount: product.basePrice,
+      product_data: {
+        name: `${product.name} — Starter Package (one-time setup)`,
+        description: product.description,
+        // Required now that Managed Payments is enabled on this account —
+        // Stripe rejects line items with no product tax code.
+        // txcd_10000000 (General - Electronically Supplied Services) is
+        // Stripe's own documented default for not-yet-classified digital
+        // services.
+        tax_code: "txcd_10000000",
+      },
+    },
+    quantity: 1,
+  };
+
+  const supportLineItem = {
+    price_data: {
+      currency: "usd" as const,
+      unit_amount: product.monthlySupport ?? 0,
+      recurring: { interval: "month" as const },
+      product_data: {
+        name: `${product.name} — Monthly Support (recurring)`,
+        description: "Ongoing monitoring, updates, and support for this AI system. Billed monthly.",
+        tax_code: "txcd_10000000",
+      },
+    },
+    quantity: 1,
+  };
 
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: isMonthly ? "subscription" : "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            unit_amount: isMonthly ? product.monthlySupport! : product.basePrice,
-            ...(isMonthly ? { recurring: { interval: "month" as const } } : {}),
-            product_data: {
-              name: isMonthly ? `${product.name} — Monthly Plan` : `${product.name} — Starter Package`,
-              description: product.description,
-              // Required now that Managed Payments is enabled on this
-              // account — Stripe rejects line items with no product tax
-              // code. txcd_10000000 (General - Electronically Supplied
-              // Services) is Stripe's own documented default for
-              // not-yet-classified digital services. Stripe's docs note
-              // this default doesn't capture state-specific US nuances as
-              // precisely as a fully-classified code would — fine for test
-              // mode, but pick a more specific code via the Stripe
-              // Dashboard's Product Tax Code selector before going live.
-              tax_code: "txcd_10000000",
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      // customer_creation is a payment-mode-only param — Stripe always
-      // creates (or reuses) a Customer automatically for subscription-mode
-      // sessions, and rejects this param if it's present on those. Same for
-      // phone_number_collection, which Stripe Checkout doesn't support on
-      // subscription mode.
-      ...(isMonthly
+      mode: wantsSupport ? "subscription" : "payment",
+      line_items: wantsSupport ? [supportLineItem, setupLineItem] : [setupLineItem],
+      // customer_creation and phone_number_collection are payment-mode-only
+      // params — Stripe always creates/reuses a Customer automatically for
+      // subscription-mode sessions and rejects these params on those.
+      ...(wantsSupport
         ? {}
         : { customer_creation: "always" as const, phone_number_collection: { enabled: true } }),
       billing_address_collection: "auto",
@@ -119,6 +126,9 @@ export async function POST(req: NextRequest) {
       metadata: {
         productSlug: product.slug,
         source,
+        includesMonthlySupport: wantsSupport ? "true" : "false",
+        monthlySupportAmount: wantsSupport ? String(product.monthlySupport) : "",
+        setupAmount: String(product.basePrice),
       },
     });
 
@@ -131,8 +141,9 @@ export async function POST(req: NextRequest) {
         metadata: {
           source,
           productSlug: product.slug,
-          amount: isMonthly ? product.monthlySupport : product.basePrice,
-          billingType: parsed.data.billingType,
+          setupAmount: product.basePrice,
+          includesMonthlySupport: wantsSupport,
+          monthlySupportAmount: wantsSupport ? product.monthlySupport : null,
           ...attribution,
         },
       },
