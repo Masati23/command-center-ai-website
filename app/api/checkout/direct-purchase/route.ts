@@ -10,7 +10,16 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   productSlug: z.string().min(1),
+  billingType: z.enum(["onetime", "monthly"]).optional().default("onetime"),
 });
+
+// Server-side allowlist for the recurring "Subscribe Monthly" path — kept
+// deliberately narrow. These are the only two services with a real, fixed
+// recurring monthlySupport price backing them; every other product's
+// monthlySupport figure is "starting at" display text, not a chargeable
+// amount, so it must never be reachable via billingType:"monthly" even if a
+// client sent it.
+const MONTHLY_SUBSCRIPTION_ALLOWLIST = new Set(["ai-website-chatbot", "ai-appointment-booking"]);
 
 /**
  * "Buy Starter Package" — a one-click purchase path for the fixed-price
@@ -50,18 +59,36 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Product not found or not available for purchase." }, { status: 404 });
   }
 
+  const isMonthly = parsed.data.billingType === "monthly";
+
+  if (isMonthly && !MONTHLY_SUBSCRIPTION_ALLOWLIST.has(product.slug)) {
+    return NextResponse.json(
+      { error: "This service does not have a recurring subscription purchase option." },
+      { status: 400 }
+    );
+  }
+
+  if (isMonthly && (product.monthlySupport == null || product.monthlySupport <= 0)) {
+    return NextResponse.json(
+      { error: "This service does not have a fixed recurring price configured." },
+      { status: 400 }
+    );
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const source = isMonthly ? "direct_purchase_monthly" : "direct_purchase";
 
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: isMonthly ? "subscription" : "payment",
       line_items: [
         {
           price_data: {
             currency: "usd",
-            unit_amount: product.basePrice,
+            unit_amount: isMonthly ? product.monthlySupport! : product.basePrice,
+            ...(isMonthly ? { recurring: { interval: "month" as const } } : {}),
             product_data: {
-              name: `${product.name} — Starter Package`,
+              name: isMonthly ? `${product.name} — Monthly Plan` : `${product.name} — Starter Package`,
               description: product.description,
               // Required now that Managed Payments is enabled on this
               // account — Stripe rejects line items with no product tax
@@ -78,14 +105,20 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      customer_creation: "always",
-      phone_number_collection: { enabled: true },
+      // customer_creation is a payment-mode-only param — Stripe always
+      // creates (or reuses) a Customer automatically for subscription-mode
+      // sessions, and rejects this param if it's present on those. Same for
+      // phone_number_collection, which Stripe Checkout doesn't support on
+      // subscription mode.
+      ...(isMonthly
+        ? {}
+        : { customer_creation: "always" as const, phone_number_collection: { enabled: true } }),
       billing_address_collection: "auto",
       success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/checkout/cancel`,
       metadata: {
         productSlug: product.slug,
-        source: "direct_purchase",
+        source,
       },
     });
 
@@ -96,9 +129,10 @@ export async function POST(req: NextRequest) {
         type: "checkout_started",
         refId: session.id,
         metadata: {
-          source: "direct_purchase",
+          source,
           productSlug: product.slug,
-          amount: product.basePrice,
+          amount: isMonthly ? product.monthlySupport : product.basePrice,
+          billingType: parsed.data.billingType,
           ...attribution,
         },
       },

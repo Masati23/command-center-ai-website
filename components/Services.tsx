@@ -131,6 +131,12 @@ interface Service {
   visual: React.ReactNode;
   checkoutMode: CheckoutMode;
   additionalCostKey?: TranslationKey;
+  // Only set for the 2 services that also have a real, fixed recurring
+  // subscription price (distinct from monthlySupportPrice, which is just
+  // display text everywhere else). Renders a second "Subscribe Monthly"
+  // button wired to mode:"subscription" checkout, alongside the one-time
+  // setup-fee Buy button - never instead of it.
+  monthlySubscriptionAvailable?: boolean;
   // Renders a small eyebrow + intro directly above this card — used once,
   // on the first Website Development entry, to visually separate it from
   // the AI Solutions catalog above without a second page section.
@@ -155,6 +161,7 @@ const services: Service[] = [
     ],
     visual: <ChatbotMockup />,
     checkoutMode: "buy",
+    monthlySubscriptionAvailable: true,
   },
   {
     tag: "Service 02",
@@ -172,6 +179,7 @@ const services: Service[] = [
     ],
     visual: <BookingMockup />,
     checkoutMode: "buy",
+    monthlySubscriptionAvailable: true,
   },
   {
     tag: "Service 03",
@@ -253,7 +261,7 @@ const services: Service[] = [
         items={["14 calls answered", "5 appointments booked", "3 after-hours calls covered"]}
       />
     ),
-    checkoutMode: "consultOnly",
+    checkoutMode: "buy",
     additionalCostKey: "services.voiceUsageDisclaimer",
   },
   {
@@ -277,7 +285,7 @@ const services: Service[] = [
         items={["32 leads captured", "11 follow-ups sent today", "6 opportunities updated"]}
       />
     ),
-    checkoutMode: "consultOnly",
+    checkoutMode: "buy",
     additionalCostKey: "services.crmSubscriptionDisclaimer",
   },
   {
@@ -347,7 +355,7 @@ const services: Service[] = [
         items={["47 employee questions answered", "3 new procedures added", "2 onboarding sessions supported"]}
       />
     ),
-    checkoutMode: "consultOnly",
+    checkoutMode: "buy",
     additionalCostKey: "services.employeeUsageDisclaimer",
   },
   {
@@ -490,6 +498,10 @@ const services: Service[] = [
 
 export default function Services() {
   const { t } = useLanguage();
+  // Keyed by `${productSlug}:onetime` or `${productSlug}:monthly` — the two
+  // services with a real recurring plan render two independent buttons, so
+  // a single per-slug key would make clicking one button show the other's
+  // loading/error state.
   const [buyState, setBuyState] = useState<Record<string, "idle" | "loading" | "error">>({});
 
   // Still best-effort (a tracking failure should never affect the actual
@@ -502,7 +514,7 @@ export default function Services() {
   // guarantees delivery without blocking navigation, so there's no added
   // checkout delay. Falls back to a keepalive fetch for the rare browser
   // without sendBeacon support (still best-effort, not awaited).
-  function track(type: "buy_click" | "consult_click", productSlug: string) {
+  function track(type: "buy_click" | "buy_click_monthly" | "consult_click", productSlug: string) {
     const payload = JSON.stringify({ type, productSlug });
     if (typeof navigator !== "undefined" && navigator.sendBeacon) {
       const blob = new Blob([payload], { type: "application/json" });
@@ -517,21 +529,22 @@ export default function Services() {
     }).catch(() => {});
   }
 
-  async function handleBuy(productSlug: string) {
-    track("buy_click", productSlug);
-    setBuyState((s) => ({ ...s, [productSlug]: "loading" }));
+  async function handleBuy(productSlug: string, billingType: "onetime" | "monthly" = "onetime") {
+    const key = `${productSlug}:${billingType}`;
+    track(billingType === "monthly" ? "buy_click_monthly" : "buy_click", productSlug);
+    setBuyState((s) => ({ ...s, [key]: "loading" }));
     try {
       const res = await fetch("/api/checkout/direct-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productSlug }),
+        body: JSON.stringify(billingType === "monthly" ? { productSlug, billingType } : { productSlug }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
       window.location.href = data.url;
     } catch (err) {
       console.error("Buy Starter Package failed:", err);
-      setBuyState((s) => ({ ...s, [productSlug]: "error" }));
+      setBuyState((s) => ({ ...s, [key]: "error" }));
     }
   }
 
@@ -600,10 +613,25 @@ export default function Services() {
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {service.checkoutMode === "buy" && (
-                  <Button type="button" variant="primary" onClick={() => handleBuy(service.productSlug)}>
-                    {buyState[service.productSlug] === "loading"
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={() => handleBuy(service.productSlug, "onetime")}
+                  >
+                    {buyState[`${service.productSlug}:onetime`] === "loading"
                       ? t("services.buyProcessing")
                       : t("services.buyStarterPackage")}
+                  </Button>
+                )}
+                {service.checkoutMode === "buy" && service.monthlySubscriptionAvailable && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => handleBuy(service.productSlug, "monthly")}
+                  >
+                    {buyState[`${service.productSlug}:monthly`] === "loading"
+                      ? t("services.buyProcessing")
+                      : t("services.subscribeMonthly")}
                   </Button>
                 )}
                 <Button
@@ -614,7 +642,10 @@ export default function Services() {
                   {t("services.freeConsultationQuote")}
                 </Button>
               </div>
-              {buyState[service.productSlug] === "error" && (
+              {buyState[`${service.productSlug}:onetime`] === "error" && (
+                <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
+              )}
+              {buyState[`${service.productSlug}:monthly`] === "error" && (
                 <p className="mt-3 text-xs text-red-400">{t("services.buyError")}</p>
               )}
               {service.productSlug === "ai-voice-receptionist-phone-agent" && (

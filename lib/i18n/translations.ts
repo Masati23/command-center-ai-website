@@ -41,6 +41,7 @@ export const translations = {
   },
   "services.getStarted": { en: "Free AI Consultation", es: "Consulta Gratuita de IA" },
   "services.buyStarterPackage": { en: "Buy Starter Package", es: "Comprar Paquete Inicial" },
+  "services.subscribeMonthly": { en: "Subscribe Monthly", es: "Suscribirse Mensualmente" },
   "services.freeConsultationQuote": {
     en: "Free Consultation / Custom Quote",
     es: "Consulta Gratuita / Cotización Personalizada",
@@ -350,6 +351,10 @@ export const translations = {
     es: "Mantén tus sistemas de IA funcionando sin problemas, actualizados y optimizados mucho después del lanzamiento.",
   },
   "pricing.support.choose": { en: "Choose", es: "Elegir" },
+  // Support plans stay consultation-first (final monthly price depends on
+  // number of AI systems + setup) — this CTA must never imply a guaranteed
+  // fixed charge the way "Subscribe" or "Buy" would.
+  "pricing.support.getStarted": { en: "Get My Support Plan", es: "Obtener Mi Plan de Soporte" },
 
   "pricing.included.eyebrow": { en: "What's Included", es: "Qué Incluye" },
   "pricing.included.title": { en: "What's Included in Monthly Support & Hosting", es: "Qué Incluye el Soporte y Alojamiento Mensual" },

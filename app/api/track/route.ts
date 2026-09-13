@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 // pages. No visitor identity is captured here, intentionally.
 const VALID_TYPES = [
   "buy_click",
+  "buy_click_monthly",
   "consult_click",
   // AI assistant panel events (upgrade of the existing chatbot's
   // presentation layer — same EventLog table, same admin reporting

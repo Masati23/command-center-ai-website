@@ -161,7 +161,7 @@ export default function Pricing() {
               </ul>
 
               <Button href="/#contact" variant={tier.highlighted ? "primary" : "secondary"} className="mt-8 w-full">
-                {t("pricing.support.choose")} {tier.name}
+                {t("pricing.support.getStarted")}
               </Button>
             </GlassCard>
           ))}

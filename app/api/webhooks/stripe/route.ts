@@ -82,7 +82,7 @@ function isUniqueConstraintError(err: unknown): boolean {
 async function handleCheckoutCompleted(event: Stripe.Event) {
   const session = event.data.object as Stripe.Checkout.Session;
 
-  if (session.metadata?.source === "direct_purchase") {
+  if (session.metadata?.source === "direct_purchase" || session.metadata?.source === "direct_purchase_monthly") {
     await handleDirectPurchaseCompleted(event, session);
     return;
   }
@@ -156,10 +156,25 @@ async function handleCheckoutCompleted(event: Stripe.Event) {
  * buyer's info. Stripe Checkout itself collected name/email/phone on its
  * hosted page, so this is the first and only place those records get
  * created, and only after Stripe has confirmed the payment.
+ *
+ * Handles both one-time purchases (source: "direct_purchase") and the
+ * recurring monthly subscription path (source: "direct_purchase_monthly").
+ * For monthly: this creates the Customer + Order (with stripeSubscriptionId
+ * set) but deliberately does NOT create a Payment row here. The existing
+ * proposal-flow MONTHLY pattern creates a Payment on checkout.completed AND
+ * lets invoice.payment_succeeded create another one for that same first
+ * invoice (different stripeEventId, so the idempotency constraint doesn't
+ * catch it) — a pre-existing double-count risk. This handler avoids
+ * replicating that: handleInvoicePaymentSucceeded already does a generic
+ * `stripeSubscriptionId` lookup and will create the one true Payment row
+ * (and send the one true confirmation email, with a real receiptUrl) once
+ * Stripe fires that event moments later — no changes needed there.
  */
 async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Stripe.Checkout.Session) {
   const productSlug = session.metadata?.productSlug;
   if (!productSlug) return;
+
+  const isMonthly = session.metadata?.source === "direct_purchase_monthly";
 
   const product = await db.product.findUnique({ where: { slug: productSlug } });
   if (!product) return;
@@ -179,7 +194,46 @@ async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Strip
     create: { name, email, phone },
   });
 
-  const amountPaid = session.amount_total ?? product.basePrice;
+  const amountPaid = session.amount_total ?? (isMonthly ? product.monthlySupport ?? 0 : product.basePrice);
+
+  if (isMonthly) {
+    const subscriptionId = typeof session.subscription === "string" ? session.subscription : undefined;
+
+    const order = await db.order.create({
+      data: {
+        customerId: customer.id,
+        proposalId: null,
+        path: "direct_purchase_monthly",
+        paymentPlanType: "MONTHLY",
+        amountTotal: amountPaid,
+        amountDue: amountPaid,
+        status: "PAID",
+        stripeCheckoutSessionId: session.id,
+        stripeCustomerId: typeof session.customer === "string" ? session.customer : undefined,
+        stripeSubscriptionId: subscriptionId,
+        items: { create: [{ productId: product.id, price: amountPaid }] },
+      },
+    });
+
+    await db.eventLog.create({
+      data: {
+        type: "payment_succeeded",
+        refId: order.id,
+        email: customer.email,
+        metadata: {
+          stripeEventId: event.id,
+          source: "direct_purchase_monthly",
+          productSlug: product.slug,
+          note: "Order created on checkout.session.completed; first Payment row + confirmation email is created by invoice.payment_succeeded to avoid double-booking.",
+        },
+      },
+    });
+
+    // No Payment row and no confirmation email here on purpose — see
+    // function-level comment. invoice.payment_succeeded (fired moments
+    // later by Stripe for the subscription's first invoice) handles both.
+    return;
+  }
 
   const order = await db.order.create({
     data: {
@@ -246,7 +300,8 @@ async function handleDirectPurchaseCompleted(event: Stripe.Event, session: Strip
 async function handleCheckoutExpired(event: Stripe.Event) {
   const session = event.data.object as Stripe.Checkout.Session;
 
-  const isDirectPurchase = session.metadata?.source === "direct_purchase";
+  const sourceMeta = session.metadata?.source;
+  const isDirectPurchase = sourceMeta === "direct_purchase" || sourceMeta === "direct_purchase_monthly";
   const productSlug = session.metadata?.productSlug ?? null;
   const orderId = session.metadata?.orderId ?? null;
   const refId = isDirectPurchase ? session.id : orderId ?? session.id;
@@ -258,7 +313,7 @@ async function handleCheckoutExpired(event: Stripe.Event) {
       metadata: {
         stripeEventId: event.id,
         stripeSessionId: session.id,
-        source: isDirectPurchase ? "direct_purchase" : "proposal",
+        source: isDirectPurchase ? sourceMeta : "proposal",
         productSlug,
         amountTotal: session.amount_total,
         currency: session.currency,
