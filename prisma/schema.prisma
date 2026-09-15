@@ -526,3 +526,23 @@ model PageView {
   @@index([createdAt])
   @@index([visitorId])
 }
+
+
+// ---------------------------------------------------------------------------
+// Digital Business Card (/connect) -- fully additive/isolated. Does not
+// relate to, modify, or get read by any existing model above. Records one
+// row per tracked button click on the /connect digital business card page;
+// page-view counts for /connect itself already come for free from the
+// existing Visitor/PageView tracking above.
+// ---------------------------------------------------------------------------
+
+model CardClick {
+id        String   @id @default(cuid())
+action    String
+visitorId String?
+createdAt DateTime @default(now())
+
+@@map("card_clicks")
+@@index([action])
+@@index([createdAt])
+}
