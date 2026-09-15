@@ -65,4 +65,3 @@ export function TrackedAnchor({
           </a>
         );
 }
-</a>
