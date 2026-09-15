@@ -41,6 +41,7 @@ export default function AdminShell({
     { label: "Chat Insights", href: "/admin/chatbot", badge: badges?.newChatConversations },
     { label: "Orders & Payments", href: "/admin/orders", badge: (badges?.newPurchases ?? 0) + (badges?.failedPayments ?? 0) },
     { label: "Service Interest", href: "/admin/service-interest" },
+    { label: "Digital Card", href: "/admin/digital-card" },
     { label: "System Health", href: "/admin/system-health" },
   ];
 
