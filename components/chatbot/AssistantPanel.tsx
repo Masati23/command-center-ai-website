@@ -75,13 +75,34 @@ export default function AssistantPanel({
   const bookingRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Escape closes, and focus lands on the panel (not trapped — Tab still
-  // moves through the page normally once the visitor tabs past the panel's
-  // own controls) so keyboard/screen-reader users land somewhere sensible
-  // the moment the assistant opens.
+  // Focus lands on the panel the moment it opens, so keyboard/screen-reader
+  // users land somewhere sensible (not trapped — Tab still moves through
+  // the page normally once the visitor tabs past the panel's own
+  // controls). Deliberately depends on `open` ONLY, not on `onClose`.
+  //
+  // Root cause of the mobile typing bug: this used to be one effect with
+  // `[open, onClose]` as its dependency array, bundled together with the
+  // Escape-key listener below. `onClose` (ChatWidget's `closeAssistant`)
+  // is a plain function, recreated on every ChatWidget render — including
+  // every keystroke, since typing updates `input` state and re-renders the
+  // whole tree. That gave this effect a "new" `onClose` reference on every
+  // character typed, so React re-ran the whole effect each time, including
+  // `closeButtonRef.current?.focus()` — which yanked DOM focus off the
+  // message input and onto the close button after every single character.
+  // On mobile, moving focus off a text input dismisses the on-screen
+  // keyboard, which is exactly the "type one letter, then it stops me"
+  // symptom. Splitting the imperative focus-on-open call into its own
+  // effect keyed only on `open` (which never changes while typing) removes
+  // the every-keystroke re-run entirely, without touching input state,
+  // without needing to memoize anything in ChatWidget, and without
+  // changing the panel's open/close or Escape-to-close behavior at all.
   useEffect(() => {
     if (!open) return;
     closeButtonRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
