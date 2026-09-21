@@ -74,6 +74,10 @@ export default function AssistantPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const bookingRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  // Tracks where a press started on the backdrop, so the click-outside
+  // handler below only closes on a genuine, fully-resolved tap/click that
+  // both starts AND ends on the backdrop itself — see the handler for why.
+  const backdropPressTarget = useRef<EventTarget | null>(null);
 
   // Focus lands on the panel the moment it opens, so keyboard/screen-reader
   // users land somewhere sensible (not trapped — Tab still moves through
@@ -179,8 +183,30 @@ export default function AssistantPanel({
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
+      // Root cause of the "panel closes after the first keystroke on
+      // mobile" bug: this used to close on `onMouseDown` alone the instant
+      // `e.target === e.currentTarget`. `mousedown` fires the moment a
+      // press begins, before the browser has resolved a complete
+      // press-and-release gesture on one element — on iOS Safari, the
+      // keyboard's predictive-text bar re-lays-out on every character
+      // typed, and that churn can produce a stray `mousedown` without any
+      // real, deliberate tap landing on the backdrop. `click` only fires
+      // after a full press-and-release resolves on the same element,
+      // which is what every standard "click outside to close" modal
+      // pattern uses specifically because it's immune to this kind of
+      // transient event noise. Tracking the mousedown target separately
+      // and requiring BOTH the press and the click to land on the
+      // backdrop itself (not a descendant) is extra hardening — it also
+      // stops a genuine drag that starts inside the panel and is released
+      // outside it from accidentally closing things, on any device.
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        backdropPressTarget.current = e.target;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropPressTarget.current === e.currentTarget) {
+          onClose();
+        }
+        backdropPressTarget.current = null;
       }}
     >
       <div
